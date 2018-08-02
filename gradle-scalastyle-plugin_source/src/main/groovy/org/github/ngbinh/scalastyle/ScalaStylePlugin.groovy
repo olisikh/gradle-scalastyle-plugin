@@ -49,15 +49,19 @@ class ScalaStylePlugin implements Plugin<Project> {
                     ScalastyleConfiguration.readFromXml(extension.config.absolutePath) :
                     null
 
-            if (!extension.skip) {
-                def srcSets = project.sourceSets.findAll { !it.scala.srcDirs.isEmpty() }
-                        .collectEntries { [it.name, it.scala.srcDirs] }
+            def srcSets = project.sourceSets.findAll { !it.scala.srcDirs.isEmpty() }
+                    .collectEntries { [it.name, it.scala.srcDirs] }
 
-                def scalaStyleTasks = srcSets.collect {
-                    def sourceSetName = it.key
-                    def srcDirs = it.value
+            def scalaStyleTasks = srcSets.findResults {
+                def sourceSetName = it.key
+                def srcDirs = it.value
 
-                    project.task(type: SourceTask,"scalaStyle${sourceSetName.capitalize()}") {
+                def overrides = extension.sourceSets.find { it.name == sourceSetName } ?:
+                        new ScalaStyleSourceSet(sourceSetName) // create dummy object to not fail with NPE
+
+                def skip = overrides.skip != null ? overrides.skip : extension.skip
+                if (!skip) {
+                    project.task(type: SourceTask, "scalaStyle${sourceSetName.capitalize()}") {
                         group = 'verification'
                         description = "Runs scalastyle checks on source set ${sourceSetName}."
 
@@ -67,8 +71,6 @@ class ScalaStylePlugin implements Plugin<Project> {
                             try {
                                 def startMs = System.currentTimeMillis()
 
-                                def overrides = extension.sourceSets.find { it.name == sourceSetName } ?:
-                                        new ScalaStyleSourceSet(sourceSetName) // create dummy object to not fail with NPE
                                 def usedConfig = overrides.config ?
                                         ScalastyleConfiguration.readFromXml(overrides.config.absolutePath) :
                                         globalConfig
@@ -116,14 +118,16 @@ class ScalaStylePlugin implements Plugin<Project> {
                             }
                         }
                     }
+                } else {
+                    null
                 }
+            }
 
-                project.task('scalaStyle') {
-                    group = 'verification'
-                    description = "Runs scalastyle checks."
+            project.task('scalaStyle') {
+                group = 'verification'
+                description = "Runs scalastyle checks."
 
-                    dependsOn scalaStyleTasks
-                }
+                dependsOn scalaStyleTasks
             }
         }
     }

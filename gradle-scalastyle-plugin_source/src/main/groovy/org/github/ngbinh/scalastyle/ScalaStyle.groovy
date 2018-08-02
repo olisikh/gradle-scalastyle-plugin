@@ -5,8 +5,8 @@ import org.gradle.api.NamedDomainObjectContainer
 
 
 abstract class BaseScalaStyle {
+    Boolean skip = false
     File config
-    File output
     String outputEncoding = "UTF-8"
     Boolean failOnViolation = true
     Boolean failOnWarning = false
@@ -26,7 +26,6 @@ class ScalaStyleSourceSet extends BaseScalaStyle {
 
 @ToString
 class ScalaStyle extends BaseScalaStyle {
-    Boolean skip = false
 
     NamedDomainObjectContainer<ScalaStyleSourceSet> sourceSets
 
