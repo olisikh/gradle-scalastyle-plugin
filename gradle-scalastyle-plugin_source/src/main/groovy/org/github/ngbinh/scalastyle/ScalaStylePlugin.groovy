@@ -94,44 +94,40 @@ class ScalaStylePlugin implements Plugin<Project> {
                     try {
                         def startMs = System.currentTimeMillis()
 
-                        def encoding = overrides.inputEncoding ?: extension.inputEncoding
-                        def filesToProcess = scalaStyleUtils.getFilesToProcess(srcDirs, encoding)
-                        def messages = scalaStyleUtils.checkFiles(overrides.config ?
+                        def usedScalaStyleConfig = overrides.config ?
                                 loadScalaStyleConfig(overrides.config) :
-                                scalaStyleConfig, filesToProcess)
-
-                        def config = scalaStyleUtils.readConfig()
-                        def verbose = overrides.verbose != null ? overrides.verbose : extension.verbose
-                        def quiet = overrides.quiet != null ? overrides.quiet : extension.quiet
-
-                        def outputResult = new TextOutput(config, verbose, quiet).output(messages)
-
+                                scalaStyleConfig
                         def outputFile = overrides.output ?
                                 project.file(overrides.output) :
                                 project.file("${project.buildDir.absolutePath}/scalastyle/${srcSetName}/scalastyle-check.xml")
 
-                        log.debug("Saving to outputFile={}", outputFile.canonicalPath)
-                        def outputEncoding = overrides.outputEncoding ?: extension.outputEncoding
+                        def options = extractOptions(overrides)
 
-                        XmlOutput.save(config, outputFile.absolutePath, outputEncoding, messages)
+                        def filesToProcess = scalaStyleUtils.getFilesToProcess(srcDirs, options.encoding)
+                        def messages = scalaStyleUtils.checkFiles(usedScalaStyleConfig, filesToProcess)
+
+                        def config = scalaStyleUtils.readConfig()
+                        def outputResult = new TextOutput(config, options.verbose, options.quiet).output(messages)
+
+                        log.debug("Saving to outputFile={}", outputFile.canonicalPath)
+
+                        XmlOutput.save(config, outputFile.absolutePath, options.outputEncoding, messages)
 
                         def stopMs = System.currentTimeMillis()
-                        if (!quiet) {
+                        if (!options.quiet) {
                             log.info("Processed {} file(s)", outputResult.files())
                             log.warn("Found {} warnings", outputResult.warnings())
                             log.error("Found {} errors", outputResult.errors())
                             log.info("Finished in {} ms", stopMs - startMs)
                         }
 
-                        def failOnWarning = overrides.failOnWarning != null ? overrides.failOnWarning : extension.failOnWarning
 
-                        def violations = outputResult.errors() + ((failOnWarning) ? outputResult.warnings() : 0)
-                        def failOnViolation = overrides.failOnViolation != null ? overrides.failOnViolation : extension.failOnViolation
+                        def violations = outputResult.errors() + ((options.failOnWarning) ? outputResult.warnings() : 0)
                         if (violations > 0) {
-                            if (failOnViolation) {
-                                throw new GradleException("You have " + violations + " Scalastyle violation(s).")
+                            if (options.failOnViolation) {
+                                throw new GradleException("You have $violations Scalastyle violation(s).")
                             } else {
-                                log.warn("Scalastyle:check violations detected but failOnViolation set to " + failOnViolation)
+                                log.warn("Scalastyle:check violations detected but failOnViolation set to false")
                             }
                         } else {
                             log.debug("Scalastyle:check no violations found")
@@ -144,6 +140,21 @@ class ScalaStylePlugin implements Plugin<Project> {
         } else {
             null
         }
+    }
+
+    private def extractOptions(ScalaStyleSourceSet overrides) {
+        [
+                encoding       : overrides.inputEncoding ?: extension.inputEncoding,
+                outputEncoding : overrides.outputEncoding ?: extension.outputEncoding,
+                verbose        : overrides.verbose != null ? overrides.verbose : extension.verbose,
+                quiet          : overrides.quiet != null ? overrides.quiet : extension.quiet,
+                failOnWarning  : overrides.failOnWarning != null ?
+                        overrides.failOnWarning :
+                        extension.failOnWarning,
+                failOnViolation: overrides.failOnViolation != null ?
+                        overrides.failOnViolation :
+                        extension.failOnViolation
+        ]
     }
 
     private def loadScalaStyleConfig(File config) {
