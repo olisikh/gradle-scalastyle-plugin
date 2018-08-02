@@ -34,28 +34,14 @@ import scala.collection.JavaConverters._
   * @since 5/11/13
   */
 class ScalaStyleUtils {
-  def getFilesToProcess(sourceFiles: jList[File], testFiles: jList[File], inputEncoding: String, includeTestSourceDirectory: Boolean): List[FileSpec] = {
-    val sd = getFiles("sourceDirectory", asScalaBufferConverter(sourceFiles).asScala.toList, inputEncoding)
-    val tsd = if (includeTestSourceDirectory) getTestFilesToProcess(testFiles, inputEncoding) else Nil
+  def getFilesToProcess(sourceFiles: jList[File], inputEncoding: String): List[FileSpec] =
+    getFiles("sourceDirectory", sourceFiles.asScala.toList, inputEncoding)
 
-    sd ::: tsd
-  }
+  private def getFiles(name: String, files: List[File], encoding: String): List[FileSpec] =
+    Directory.getFiles(Option[String](encoding), files)
 
-  def getTestFilesToProcess(testFiles: jList[File], inputEncoding: String): List[FileSpec] = {
-    getFiles("testFiles", asScalaBufferConverter(testFiles).asScala.toList, inputEncoding)
-  }
-
-  def getFiles(name: String, file: List[File], encoding: String): List[FileSpec] = {
-    Directory.getFiles(Option[String](encoding), file)
-  }
-
-  def isDirectory(file: File): Boolean = file != null && file.exists() && file.isDirectory
-
-  def checkFiles(configuration: ScalastyleConfiguration, files: List[FileSpec]): jList[Message[FileSpec]] = {
+  def checkFiles(configuration: ScalastyleConfiguration, files: List[FileSpec]): jList[Message[FileSpec]] =
     new ScalastyleChecker(Some(this.getClass.getClassLoader)).checkFiles(configuration, files).toBuffer.asJava
-  }
 
-  def configFactory(): Config = {
-    ConfigFactory.load(this.getClass.getClassLoader)
-  }
+  def readConfig(): Config = ConfigFactory.load(this.getClass.getClassLoader)
 }

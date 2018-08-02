@@ -8,15 +8,12 @@ buildscript {
   }
 
   dependencies {
-    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:1.0.0'
+    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:2.0.0'
   }
 }
 
 scalaStyle {
-  configLocation = "scalastyle_config.xml"
-  // includeTestSourceDirectory = true
-  source = "src/main/scala"
-  // testSource = "src/test/scala"
+  config = "scalastyle_config.xml"
   verbose = false
 }
 
@@ -35,7 +32,8 @@ dependencies {
 
 // START SNIPPET use-zinc
 tasks.withType(ScalaCompile) {
-    scalaCompileOptions.useAnt = false
+
+//    scalaCompileOptions.useAnt = false
 }
 // END SNIPPET use-zinc
 
