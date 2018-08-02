@@ -84,63 +84,63 @@ class ScalaStylePlugin implements Plugin<Project> {
 
         def skip = overrides.skip != null ? overrides.skip : extension.skip
         if (!skip) {
-        project.task(type: SourceTask, "scalaStyle${srcSetName.capitalize()}") {
-            group = 'verification'
-            description = "Runs scalastyle checks on source set ${srcSetName}."
+            project.task(type: SourceTask, "scalaStyle${srcSetName.capitalize()}") {
+                group = 'verification'
+                description = "Runs scalastyle checks on source set ${srcSetName}."
 
-            source = srcDirs
+                source = srcDirs
 
-            doLast {
-                try {
-                    def startMs = System.currentTimeMillis()
+                doLast {
+                    try {
+                        def startMs = System.currentTimeMillis()
 
-                    def encoding = overrides.inputEncoding ?: extension.inputEncoding
-                    def filesToProcess = scalaStyleUtils.getFilesToProcess(srcDirs, encoding)
-                    def messages = scalaStyleUtils.checkFiles(overrides.config ?
-                            loadScalaStyleConfig(overrides.config) :
-                            scalaStyleConfig, filesToProcess)
+                        def encoding = overrides.inputEncoding ?: extension.inputEncoding
+                        def filesToProcess = scalaStyleUtils.getFilesToProcess(srcDirs, encoding)
+                        def messages = scalaStyleUtils.checkFiles(overrides.config ?
+                                loadScalaStyleConfig(overrides.config) :
+                                scalaStyleConfig, filesToProcess)
 
-                    def config = scalaStyleUtils.readConfig()
-                    def verbose = overrides.verbose != null ? overrides.verbose : extension.verbose
-                    def quiet = overrides.quiet != null ? overrides.quiet : extension.quiet
+                        def config = scalaStyleUtils.readConfig()
+                        def verbose = overrides.verbose != null ? overrides.verbose : extension.verbose
+                        def quiet = overrides.quiet != null ? overrides.quiet : extension.quiet
 
-                    def outputResult = new TextOutput(config, verbose, quiet).output(messages)
+                        def outputResult = new TextOutput(config, verbose, quiet).output(messages)
 
-                    def outputFile = overrides.output ?
-                            project.file(overrides.output) :
-                            project.file("${project.buildDir.absolutePath}/scalastyle/${srcSetName}/scalastyle-check.xml")
+                        def outputFile = overrides.output ?
+                                project.file(overrides.output) :
+                                project.file("${project.buildDir.absolutePath}/scalastyle/${srcSetName}/scalastyle-check.xml")
 
-                    log.debug("Saving to outputFile={}", outputFile.canonicalPath)
-                    def outputEncoding = overrides.outputEncoding ?: extension.outputEncoding
+                        log.debug("Saving to outputFile={}", outputFile.canonicalPath)
+                        def outputEncoding = overrides.outputEncoding ?: extension.outputEncoding
 
-                    XmlOutput.save(config, outputFile.absolutePath, outputEncoding, messages)
+                        XmlOutput.save(config, outputFile.absolutePath, outputEncoding, messages)
 
-                    def stopMs = System.currentTimeMillis()
-                    if (!quiet) {
-                        log.info("Processed {} file(s)", outputResult.files())
-                        log.warn("Found {} warnings", outputResult.warnings())
-                        log.error("Found {} errors", outputResult.errors())
-                        log.info("Finished in {} ms", stopMs - startMs)
-                    }
-
-                    def failOnWarning = overrides.failOnWarning != null ? overrides.failOnWarning : extension.failOnWarning
-
-                    def violations = outputResult.errors() + ((failOnWarning) ? outputResult.warnings() : 0)
-                    def failOnViolation = overrides.failOnViolation != null ? overrides.failOnViolation : extension.failOnViolation
-                    if (violations > 0) {
-                        if (failOnViolation) {
-                            throw new GradleException("You have " + violations + " Scalastyle violation(s).")
-                        } else {
-                            log.warn("Scalastyle:check violations detected but failOnViolation set to " + failOnViolation)
+                        def stopMs = System.currentTimeMillis()
+                        if (!quiet) {
+                            log.info("Processed {} file(s)", outputResult.files())
+                            log.warn("Found {} warnings", outputResult.warnings())
+                            log.error("Found {} errors", outputResult.errors())
+                            log.info("Finished in {} ms", stopMs - startMs)
                         }
-                    } else {
-                        log.debug("Scalastyle:check no violations found")
+
+                        def failOnWarning = overrides.failOnWarning != null ? overrides.failOnWarning : extension.failOnWarning
+
+                        def violations = outputResult.errors() + ((failOnWarning) ? outputResult.warnings() : 0)
+                        def failOnViolation = overrides.failOnViolation != null ? overrides.failOnViolation : extension.failOnViolation
+                        if (violations > 0) {
+                            if (failOnViolation) {
+                                throw new GradleException("You have " + violations + " Scalastyle violation(s).")
+                            } else {
+                                log.warn("Scalastyle:check violations detected but failOnViolation set to " + failOnViolation)
+                            }
+                        } else {
+                            log.debug("Scalastyle:check no violations found")
+                        }
+                    } catch (Exception ex) {
+                        throw new GradleException("Scalastyle check error", ex)
                     }
-                } catch (Exception ex) {
-                    throw new GradleException("Scalastyle check error", ex)
                 }
             }
-        }
         } else {
             null
         }
