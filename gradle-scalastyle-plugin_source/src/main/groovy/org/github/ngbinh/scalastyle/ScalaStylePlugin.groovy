@@ -18,6 +18,7 @@
 package org.github.ngbinh.scalastyle
 
 import groovy.util.logging.Slf4j
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceTask
@@ -42,11 +43,11 @@ class ScalaStylePlugin implements Plugin<Project> {
         project.configurations.create('scalaStyle')
                 .setVisible(false)
                 .setTransitive(true)
-                .setDescription('Scala Style libraries to be used for this project.')
+                .setDescription('Scalastyle libraries to be used for this project.')
 
         project.afterEvaluate {
-            def globalConfig = extension.config ?
-                    ScalastyleConfiguration.readFromXml(extension.config.absolutePath) :
+            ScalastyleConfiguration globalConfig = extension.config ?
+                    loadScalaStyleConfig(extension.config) :
                     null
 
             def srcSets = project.sourceSets.findAll { !it.scala.srcDirs.isEmpty() }
@@ -71,8 +72,8 @@ class ScalaStylePlugin implements Plugin<Project> {
                             try {
                                 def startMs = System.currentTimeMillis()
 
-                                def usedConfig = overrides.config ?
-                                        ScalastyleConfiguration.readFromXml(overrides.config.absolutePath) :
+                                ScalastyleConfiguration usedConfig = overrides.config ?
+                                        loadScalaStyleConfig(overrides.config) :
                                         globalConfig
 
                                 def encoding = overrides.inputEncoding ?: extension.inputEncoding
@@ -109,7 +110,7 @@ class ScalaStylePlugin implements Plugin<Project> {
                                 def failOnViolation = overrides.failOnViolation != null ? overrides.failOnViolation : extension.failOnViolation
                                 if (violations > 0) {
                                     if (failOnViolation) {
-                                        throw new Exception("You have " + violations + " Scalastyle violation(s).")
+                                        throw new GradleException("You have " + violations + " Scalastyle violation(s).")
                                     } else {
                                         log.warn("Scalastyle:check violations detected but failOnViolation set to " + failOnViolation)
                                     }
@@ -117,7 +118,7 @@ class ScalaStylePlugin implements Plugin<Project> {
                                     log.debug("Scalastyle:check no violations found")
                                 }
                             } catch (Exception ex) {
-                                throw new Exception("Scalastyle check error", ex)
+                                throw new GradleException("Scalastyle check error", ex)
                             }
                         }
                     }
@@ -133,5 +134,17 @@ class ScalaStylePlugin implements Plugin<Project> {
                 dependsOn scalaStyleTasks
             }
         }
+    }
+
+    private def loadScalaStyleConfig(File config) {
+        if (config == null) {
+            throw new GradleException("No Scalastyle configuration file provided")
+        }
+
+        if (!config.exists()) {
+            throw new GradleException("Scalastyle configuration $config file does not exist")
+        }
+
+        ScalastyleConfiguration.readFromXml(config.absolutePath)
     }
 }
