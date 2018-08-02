@@ -90,18 +90,20 @@ class ScalaStylePlugin implements Plugin<Project> {
 
                 source = srcDirs
 
+                def outputFile = overrides.output ?
+                        project.file(overrides.output) :
+                        project.file("${project.buildDir.absolutePath}/scalastyle/${srcSetName}/scalastyle-check.xml")
+                outputs.files(outputFile)
+
+                def usedScalaStyleConfig = overrides.config ?
+                        loadScalaStyleConfig(overrides.config) :
+                        scalaStyleConfig
+
+                def options = extractOptions(overrides)
+
                 doLast {
                     try {
                         def startMs = System.currentTimeMillis()
-
-                        def usedScalaStyleConfig = overrides.config ?
-                                loadScalaStyleConfig(overrides.config) :
-                                scalaStyleConfig
-                        def outputFile = overrides.output ?
-                                project.file(overrides.output) :
-                                project.file("${project.buildDir.absolutePath}/scalastyle/${srcSetName}/scalastyle-check.xml")
-
-                        def options = extractOptions(overrides)
 
                         def filesToProcess = scalaStyleUtils.getFilesToProcess(srcDirs, options.encoding)
                         def messages = scalaStyleUtils.checkFiles(usedScalaStyleConfig, filesToProcess)
