@@ -18,6 +18,7 @@ abstract class BaseScalaStyle {
 @ToString
 class ScalaStyleSourceSet extends BaseScalaStyle {
     String name
+    File output
 
     ScalaStyleSourceSet(String name) {
         this.name = name

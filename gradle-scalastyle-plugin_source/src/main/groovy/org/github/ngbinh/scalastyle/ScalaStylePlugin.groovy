@@ -86,7 +86,10 @@ class ScalaStylePlugin implements Plugin<Project> {
 
                                 def outputResult = new TextOutput(config, verbose, quiet).output(messages)
 
-                                def outputFile = project.file("${project.buildDir.absolutePath}/scalastyle/${sourceSetName}/scalastyle-check.xml")
+                                def outputFile = overrides.output ?
+                                        project.file(overrides.output) :
+                                        project.file("${project.buildDir.absolutePath}/scalastyle/${sourceSetName}/scalastyle-check.xml")
+
                                 log.debug("Saving to outputFile={}", outputFile.canonicalPath)
                                 def outputEncoding = overrides.outputEncoding ?: extension.outputEncoding
 
