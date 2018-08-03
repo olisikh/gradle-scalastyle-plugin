@@ -1,8 +1,6 @@
 package org.github.ngbinh.scalastyle
 
-import groovy.transform.ToString
 import org.gradle.api.NamedDomainObjectContainer
-
 
 abstract class BaseScalaStyle {
     Boolean skip = false
@@ -15,7 +13,6 @@ abstract class BaseScalaStyle {
     String inputEncoding = "UTF-8"
 }
 
-@ToString
 class ScalaStyleSourceSet extends BaseScalaStyle {
     String name
     File output
@@ -25,7 +22,6 @@ class ScalaStyleSourceSet extends BaseScalaStyle {
     }
 }
 
-@ToString
 class ScalaStyle extends BaseScalaStyle {
 
     NamedDomainObjectContainer<ScalaStyleSourceSet> sourceSets
