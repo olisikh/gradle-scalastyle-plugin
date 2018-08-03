@@ -17,14 +17,15 @@
  */
 package org.github.ngbinh.scalastyle
 
-import groovy.util.logging.Slf4j
 import org.gradle.api.GradleException
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceTask
 import org.scalastyle.ScalastyleConfiguration
 import org.scalastyle.TextOutput
 import org.scalastyle.XmlOutput
+import scalastyle.ScalaStyleUtils
 
 /**
  * @author Binh Nguyen
@@ -32,13 +33,11 @@ import org.scalastyle.XmlOutput
  * @author Muhammad Ashraf
  * @since 5/11/13
  */
-@Slf4j
 class ScalaStylePlugin implements Plugin<Project> {
-
     private Project project
     private ScalaStyle extension
 
-    private ScalaStyleUtils scalaStyleUtils = new ScalaStyleUtils()
+    private def scalaStyleUtils = new ScalaStyleUtils()
 
     void apply(Project project) {
         this.project = project
@@ -50,31 +49,31 @@ class ScalaStylePlugin implements Plugin<Project> {
                 .setTransitive(true)
                 .setDescription('Scalastyle libraries to be used for this project.')
 
-        project.afterEvaluate {
-            setupScalaStyle()
-        }
+        setupScalaStyle()
     }
 
     private def setupScalaStyle() {
-        ScalastyleConfiguration scalaStyleConfig = extension.config ?
-                loadScalaStyleConfig(extension.config) :
-                null
-
-        def srcSets = project.sourceSets.findAll { !it.scala.srcDirs.isEmpty() }
-                .collectEntries { [it.name, it.scala.srcDirs] }
-
-        def scalaStyleTasks = srcSets.findResults {
-            def srcSetName = it.key as String
-            def srcDirs = it.value as List<File>
-
-            createScalaStyleTask(srcSetName, srcDirs, scalaStyleConfig)
-        }
-
-        project.task('scalaStyle') {
+        project.task('scalaStyleAll') {
             group = 'verification'
             description = "Runs scalastyle checks."
 
-            dependsOn scalaStyleTasks
+            project.afterEvaluate {
+                 ScalastyleConfiguration scalaStyleConfig = extension.config ?
+                         loadScalaStyleConfig(extension.config) :
+                         null
+
+                 def srcSets = project.sourceSets.findAll { !it.scala.srcDirs.isEmpty() }
+                         .collectEntries { [it.name, it.scala.srcDirs] }
+
+                 def scalaStyleTasks = srcSets.findResults {
+                     def srcSetName = it.key as String
+                     def srcDirs = it.value as List<File>
+
+                     createScalaStyleTask(srcSetName, srcDirs, scalaStyleConfig)
+                 }
+
+                 dependsOn scalaStyleTasks
+            }
         }
     }
 
@@ -105,34 +104,32 @@ class ScalaStylePlugin implements Plugin<Project> {
                     try {
                         def startMs = System.currentTimeMillis()
 
-                        def filesToProcess = scalaStyleUtils.getFilesToProcess(srcDirs, options.encoding)
-                        def messages = scalaStyleUtils.checkFiles(usedScalaStyleConfig, filesToProcess)
+                        def messages = scalaStyleUtils.checkSources(usedScalaStyleConfig, srcDirs, options.encoding)
 
                         def config = scalaStyleUtils.readConfig()
                         def outputResult = new TextOutput(config, options.verbose, options.quiet).output(messages)
 
-                        log.debug("Saving to outputFile={}", outputFile.canonicalPath)
+                        logger.debug("Saving to outputFile={}", outputFile.canonicalPath)
 
                         XmlOutput.save(config, outputFile.absolutePath, options.outputEncoding, messages)
 
                         def stopMs = System.currentTimeMillis()
                         if (!options.quiet) {
-                            log.info("Processed {} file(s)", outputResult.files())
-                            log.warn("Found {} warnings", outputResult.warnings())
-                            log.error("Found {} errors", outputResult.errors())
-                            log.info("Finished in {} ms", stopMs - startMs)
+                            logger.lifecycle("Processed {} file(s)", outputResult.files())
+                            logger.warn("Found {} warnings", outputResult.warnings())
+                            logger.error("Found {} errors", outputResult.errors())
+                            logger.lifecycle("Finished in {} ms", stopMs - startMs)
                         }
-
 
                         def violations = outputResult.errors() + ((options.failOnWarning) ? outputResult.warnings() : 0)
                         if (violations > 0) {
                             if (options.failOnViolation) {
                                 throw new GradleException("You have $violations Scalastyle violation(s).")
                             } else {
-                                log.warn("Scalastyle:check violations detected but failOnViolation set to false")
+                                logger.warn("Scalastyle:check violations detected but failOnViolation set to false")
                             }
                         } else {
-                            log.debug("Scalastyle:check no violations found")
+                            logger.debug("Scalastyle:check no violations found")
                         }
                     } catch (Exception ex) {
                         throw new GradleException("Scalastyle check error", ex)
@@ -168,6 +165,12 @@ class ScalaStylePlugin implements Plugin<Project> {
             throw new GradleException("Scalastyle configuration $config file does not exist")
         }
 
-        ScalastyleConfiguration.readFromXml(config.absolutePath)
+        def scalaStyleConfig = ScalastyleConfiguration.readFromXml(config.absolutePath)
+        if (!scalaStyleConfig) {
+            throw new GradleException("Failed to read scalastyle configuration from ${config.absolutePath}")
+        }
+
+        scalaStyleConfig
     }
 }
+
