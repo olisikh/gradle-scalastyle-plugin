@@ -34,14 +34,16 @@ import scala.collection.JavaConverters._
   * @since 5/11/13
   */
 class ScalaStyleUtils {
-  def getFilesToProcess(sourceFiles: jList[File], inputEncoding: String): List[FileSpec] =
-    getFiles("sourceDirectory", sourceFiles.asScala.toList, inputEncoding)
+  import ScalaStyleUtils._
 
-  private def getFiles(name: String, files: List[File], encoding: String): List[FileSpec] =
-    Directory.getFiles(Option[String](encoding), files)
-
-  def checkFiles(configuration: ScalastyleConfiguration, files: List[FileSpec]): jList[Message[FileSpec]] =
-    new ScalastyleChecker(Some(this.getClass.getClassLoader)).checkFiles(configuration, files).toBuffer.asJava
+  def checkSources(configuration: ScalastyleConfiguration, srcDirs: jList[File], encoding: String): jList[Message[FileSpec]] =
+    scalaStyleChecker
+      .checkFiles(configuration, Directory.getFiles(Some(encoding), srcDirs.asScala.toList))
+      .toBuffer
+      .asJava
 
   def readConfig(): Config = ConfigFactory.load(this.getClass.getClassLoader)
+}
+object ScalaStyleUtils {
+  lazy val scalaStyleChecker = new ScalastyleChecker[FileSpec](Some(this.getClass.getClassLoader))
 }
