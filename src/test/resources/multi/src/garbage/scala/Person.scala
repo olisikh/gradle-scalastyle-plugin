@@ -1,3 +1,4 @@
-abstract trait Person {
+abstract trait Person
+{
   def names: List[String]
 }

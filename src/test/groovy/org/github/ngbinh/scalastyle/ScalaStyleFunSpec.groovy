@@ -1,3 +1,5 @@
+package org.github.ngbinh.scalastyle
+
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import spock.lang.Shared
@@ -15,27 +17,31 @@ abstract class ScalaStyleFunSpec extends ScalaStyleSpec {
         ].collect { new File(it) }
     }
 
-    File prepareTest(String scalaVersion) {
-        createBuildFolder(scalaVersion)
+    File prepareTest(String projectDir, String scalaStyleOverrides = null) {
+        createBuildFolder(projectDir)
+        generateBuildGradleFile(scalaStyleOverrides)
+    }
+
+    GradleRunner createRunner(String task) {
+        GradleRunner.create()
+                .forwardOutput()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath(pluginClasspath)
+                .withDebug(true)
+                .withArguments('--stacktrace', task)
     }
 
     BuildResult executeGradle(String task) {
-        GradleRunner.create().forwardOutput()
-                .withProjectDir(testProjectDir.getRoot())
-                .withPluginClasspath(pluginClasspath)
-                .withArguments("--stacktrace", task)
-                .withDebug(true)
-                .build()
+        createRunner(task).build()
+    }
+
+    BuildResult executeGradleAndFail(String task) {
+        createRunner(task).buildAndFail()
     }
 
     BuildResult executeGradle(String task, String gradleVersion) {
-        GradleRunner.create().forwardOutput()
-                .withProjectDir(testProjectDir.getRoot())
-                .withPluginClasspath(pluginClasspath)
-                .withArguments("--stacktrace", task)
-                .withDebug(true)
+        createRunner(task)
                 .withGradleVersion(gradleVersion)
-                .forwardOutput()
                 .build()
     }
 }

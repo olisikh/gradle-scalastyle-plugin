@@ -1,3 +1,5 @@
+package org.github.ngbinh.scalastyle
+
 import org.gradle.testkit.runner.BuildResult
 
 import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
@@ -5,11 +7,9 @@ import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class ScalaStyleAllTaskRunSpec extends ScalaStyleFunSpec {
 
-    String scalaVersion = System.properties['SCALA_VERSION']
-
     def "should run scalaStyleAll"() {
         setup:
-        prepareTest(scalaVersion)
+        prepareTest("zinc")
 
         when:
         BuildResult result = executeGradle('scalaStyleAll')
