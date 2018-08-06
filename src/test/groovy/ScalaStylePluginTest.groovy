@@ -9,6 +9,6 @@ class ScalaStylePluginTest extends Specification {
         project.plugins.apply "scalaStyle"
 
         then:
-        project.tasks.scalaStyle != null
+        project.tasks.scalaStyleAll != null
     }
 }
