@@ -21,6 +21,7 @@ buildscript {
 
 plugins {
     id "com.jfrog.bintray" version "1.3.1"
+    id 'idea'
 }
 
 version = projectVersion
@@ -35,8 +36,7 @@ group = projectGroup
 
 ext {
     versions = [
-            scalaStyle: '1.0.0',
-            junit     : '4.11'
+            scalaStyle: '1.0.0'
     ]
     pluginSrc = "$rootDir/src"
 }
@@ -54,8 +54,8 @@ subprojects {
     apply plugin: 'maven-publish'
 
     // JRE 1.6 should work
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     version = projectVersion
     group = projectGroup
@@ -70,10 +70,11 @@ subprojects {
         compile localGroovy()
 
         compile "org.scalastyle:scalastyle_${scalaDist}:${versions.scalaStyle}"
-        testCompile 'junit:junit:${versions.junit}'
-        testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
-            exclude group: 'org.codehaus.groovy'
+        testCompile gradleTestKit()
+        testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
+            exclude module: 'groovy-all'
         }
+        testCompile 'commons-io:commons-io:2.5'
     }
 
     sourceSets {
@@ -93,7 +94,14 @@ subprojects {
             groovy {
                 srcDirs = ["$pluginSrc/test/groovy"]
             }
+            resources {
+                srcDirs = ["$pluginSrc/test/resources"]
+            }
         }
+    }
+
+    test {
+        systemProperty 'SCALA_VERSION', scalaDist
     }
 
     compileGroovy.dependsOn(compileScala)

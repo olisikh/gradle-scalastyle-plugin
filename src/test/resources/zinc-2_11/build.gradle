@@ -2,19 +2,19 @@ apply plugin: 'scala'
 apply plugin: 'scalaStyle'
 
 buildscript {
-  repositories {
-    jcenter() // only work after gradle 1.7
-    mavenLocal()
-  }
+    repositories {
+        jcenter()
+        mavenLocal()
+    }
 
-  dependencies {
-    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.10:2.0.0'
-  }
+    dependencies {
+        classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:2.0.0'
+    }
 }
 
 scalaStyle {
-  config = "scalastyle.xml"
-  verbose = false
+    config = file("$rootDir/scalastyle.xml")
+    verbose = false
 }
 
 repositories {
@@ -22,18 +22,13 @@ repositories {
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:2.10.1'
-}
-
-dependencies {
-    compile 'commons-collections:commons-collections:3.2'
-    testCompile 'junit:junit:4.12'
+    compile 'org.scala-lang:scala-library:2.11.1'
 }
 
 // START SNIPPET use-zinc
+ScalaCompileOptions.metaClass.useAnt = false
 tasks.withType(ScalaCompile) {
-
-//    scalaCompileOptions.useAnt = false
+    scalaCompileOptions.useAnt = false
 }
 // END SNIPPET use-zinc
 
