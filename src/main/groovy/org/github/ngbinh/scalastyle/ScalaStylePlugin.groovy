@@ -51,26 +51,28 @@ class ScalaStylePlugin implements Plugin<Project> {
     }
 
     private def setupScalaStyle() {
-        project.task('scalaStyleAll') {
+        project.task('scalaStyleCheck') {
             group = 'verification'
             description = "Runs scalastyle checks."
 
             project.afterEvaluate {
-                 ScalastyleConfiguration scalaStyleConfig = extension.config ?
-                         loadScalaStyleConfig(extension.config) :
-                         null
+                ScalastyleConfiguration scalaStyleConfig
+                if (extension.config != null) {
+                    logger.info("Loading scalastyle configuration: ${extension.config.absolutePath}")
+                    scalaStyleConfig = loadScalaStyleConfig(extension.config)
+                }
 
-                 def srcSets = project.sourceSets.findAll { !it.scala.srcDirs.isEmpty() }
-                         .collectEntries { [it.name, it.scala.srcDirs] }
+                def srcSets = project.sourceSets.findAll { !it.scala.srcDirs.isEmpty() }
+                        .collectEntries { [it.name, it.scala.srcDirs] }
 
-                 def scalaStyleTasks = srcSets.findResults {
-                     def srcSetName = it.key as String
-                     def srcDirs = it.value as List<File>
+                def scalaStyleTasks = srcSets.findResults {
+                    def srcSetName = it.key as String
+                    def srcDirs = it.value as List<File>
 
-                     createScalaStyleTask(srcSetName, srcDirs, scalaStyleConfig)
-                 }
+                    createScalaStyleTask(srcSetName, srcDirs, scalaStyleConfig)
+                }
 
-                 dependsOn scalaStyleTasks
+                dependsOn scalaStyleTasks
             }
         }
     }
@@ -81,7 +83,7 @@ class ScalaStylePlugin implements Plugin<Project> {
 
         def skip = overrides.skip != null ? overrides.skip : extension.skip
         if (!skip) {
-            project.task(type: SourceTask, "scalaStyle${srcSetName.capitalize()}") {
+            project.task(type: SourceTask, "scalaStyle${srcSetName.capitalize()}Check") {
                 group = 'verification'
                 description = "Runs scalastyle checks on source set ${srcSetName}."
 
@@ -92,9 +94,11 @@ class ScalaStylePlugin implements Plugin<Project> {
                         project.file("${project.buildDir.absolutePath}/scalastyle/${srcSetName}/scalastyle-check.xml")
                 outputs.files(outputFile)
 
-                def usedScalaStyleConfig = overrides.config ?
-                        loadScalaStyleConfig(overrides.config) :
-                        scalaStyleConfig
+                def usedScalaStyleConfig = scalaStyleConfig
+                if (overrides.config != null) {
+                    logger.info("Loading overriden scalastyle configuration for ${srcSetName} source set: ${overrides.config.absolutePath}")
+                    usedScalaStyleConfig = loadScalaStyleConfig(overrides.config)
+                }
 
                 def options = extractOptions(overrides)
 

@@ -6,7 +6,7 @@ import static org.gradle.testkit.runner.TaskOutcome.*
 
 class ScalaStyleMultiSourceSpec extends ScalaStyleFunSpec {
 
-    String baseConfig = """
+    private String baseConfig = """
 sourceSets {
     garbage {
         scala {
@@ -28,7 +28,7 @@ scalaStyle {
 }
 """
 
-    def "should succeed on scalaStyleTest"() {
+    def "should succeed on scalaStyleTestCheck"() {
         setup:
         prepareTest("multi", baseConfig + """
 scalaStyle {
@@ -42,12 +42,11 @@ scalaStyle {
 """)
 
         when:
-        BuildResult result = executeGradle('scalaStyleTest')
+        BuildResult result = executeGradle('scalaStyleTestCheck')
 
         then:
-        result.task(":scalaStyleTest").outcome == SUCCESS
+        result.task(":scalaStyleTestCheck").outcome == SUCCESS
         result.output.contains """
-> Task :scalaStyleTest
 Processed 1 file(s)
 Found 0 warnings
 Found 0 errors"""
@@ -61,7 +60,7 @@ Found 0 errors"""
 """
     }
 
-    def "should succeed on scalaStyleMain"() {
+    def "should succeed on scalaStyleMainCheck"() {
         setup:
         prepareTest("multi", baseConfig + """
 scalaStyle {
@@ -74,18 +73,17 @@ scalaStyle {
 """)
 
         when:
-        def result = executeGradle('scalaStyleMain')
+        def result = executeGradle('scalaStyleMainCheck')
 
         then:
-        result.task(':scalaStyleMain').outcome == SUCCESS
-        result.output.contains ""
-        result.output.contains """> Task :scalaStyleMain
+        result.task(':scalaStyleMainCheck').outcome == SUCCESS
+        result.output.contains """
 Processed 1 file(s)
 Found 0 warnings
 Found 0 errors"""
     }
 
-    def "should fail on scalaStyleMain with custom configuration"() {
+    def "should fail on scalaStyleMainCheck with custom configuration"() {
         setup:
         prepareTest("multi", baseConfig + """
 scalaStyle {
@@ -102,21 +100,21 @@ scalaStyle {
         def result = executeGradleAndFail('scalaStyleMain')
 
         then:
-        result.task(':scalaStyleMain').outcome == FAILED
-        result.output.contains "Task :scalaStyleMain FAILED"
+        result.task(':scalaStyleMainCheck').outcome == FAILED
+        result.output.contains "Task :scalaStyleMainCheck FAILED"
         result.output.contains """Processed 1 file(s)
 Found 0 warnings
 Found 1 errors"""
-        result.output.contains """src/main/scala/Person.scala message=Header does not match expected text line=1"""
+        result.output.contains """src/main/scala/Person.scala message=@deprecated should be used instead of @java.lang.Deprecated line=17 column=0"""
     }
 
-    def "should not have a task scalaStyleGarbage"() {
+    def "should not have a task scalaStyleGarbageCheck"() {
         setup:
         prepareTest("multi", baseConfig + """
 scalaStyle {
     sourceSets {
         garbage {
-            // do not even create scalaStyleGarbage task for this source set
+            // do not even create scalaStyleGarbageCheck task for this source set
             skip = true
         }
     }
@@ -124,9 +122,9 @@ scalaStyle {
 """)
 
         when:
-        def result = executeGradleAndFail('scalaStyleGarbage')
+        def result = executeGradleAndFail('scalaStyleGarbageCheck')
 
         then:
-        result.output.contains "Task 'scalaStyleGarbage' not found in root project"
+        result.output.contains "Task 'scalaStyleGarbageCheck' not found in root project"
     }
 }

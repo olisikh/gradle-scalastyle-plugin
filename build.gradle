@@ -98,6 +98,11 @@ subprojects {
     }
 
     test {
+        dependsOn 'publishToMavenLocal'
+
+        testLogging {
+            showStandardStreams = true
+        }
         systemProperty 'SCALA_VERSION', scalaDist
         systemProperty 'PLUGIN_VERSION', version
     }

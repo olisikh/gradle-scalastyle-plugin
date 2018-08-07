@@ -6,17 +6,6 @@ import spock.lang.Shared
 
 abstract class ScalaStyleFunSpec extends ScalaStyleSpec {
 
-    @Shared
-    List<File> pluginClasspath
-
-    def setupSpec() {
-        def current = getClass().getResource("/").file
-        pluginClasspath = [
-                current.replace("classes/test", "classes/main"),
-                current.replace("classes/test", "resources/main")
-        ].collect { new File(it) }
-    }
-
     File prepareTest(String projectDir, String scalaStyleOverrides = null) {
         createBuildFolder(projectDir)
         generateBuildGradleFile(scalaStyleOverrides)
@@ -26,9 +15,8 @@ abstract class ScalaStyleFunSpec extends ScalaStyleSpec {
         GradleRunner.create()
                 .forwardOutput()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath(pluginClasspath)
                 .withDebug(true)
-                .withArguments('--stacktrace', task)
+                .withArguments('--stacktrace', '--info', task)
     }
 
     BuildResult executeGradle(String task) {

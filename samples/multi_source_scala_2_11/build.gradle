@@ -28,13 +28,13 @@ configurations {
 
 scalaStyle {
     // global config, used in case not overriden specifically
-    config = file("$rootDir/scalastyle_config.xml")
+    config = file("$rootDir/scalastyle.xml")
     verbose = false
 
     sourceSets {
         main {
             // override config
-            config = file("$rootDir/scalastyle_config_main.xml")
+            config = file("$rootDir/scalastyle_main.xml")
         }
 
         test {
@@ -56,25 +56,3 @@ repositories {
 dependencies {
     compile 'org.scala-lang:scala-library:2.11.11'
 }
-
-dependencies {
-    compile 'commons-collections:commons-collections:3.2'
-    testCompile 'junit:junit:4.12'
-}
-
-// START SNIPPET use-zinc
-tasks.withType(ScalaCompile) {
-    configure(scalaCompileOptions) {
-//        useAnt = false
-    }
-}
-// END SNIPPET use-zinc
-
-// START SNIPPET adjust-memory
-tasks.withType(ScalaCompile) {
-    configure(scalaCompileOptions.forkOptions) {
-        memoryMaximumSize = '1g'
-        jvmArgs = ['-XX:MaxPermSize=512m']
-    }
-}
-// END SNIPPET adjust-memory

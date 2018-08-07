@@ -14,4 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-abstract class Person() {def names: List[String]}
+@Deprecated
+abstract class Person {
+  def names: List[String]
+}
