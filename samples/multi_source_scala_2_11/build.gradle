@@ -38,7 +38,7 @@ scalaStyle {
         }
 
         test {
-            // override output folder
+            // override output check file name
             output = file("$rootDir/scalastyle-test-result.xml")
         }
 
