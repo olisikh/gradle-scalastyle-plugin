@@ -111,8 +111,8 @@ subprojects {
     pluginBundle {
         def pluginDescription = "Gradle plugin for scalastyle ${scalaDist}"
 
-        website = 'https://github.com/alisiikh/gradle-scalaxb-plugin'
-        vcsUrl = 'https://github.com/alisiikh/gradle-scalaxb-plugin'
+        website = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
+        vcsUrl = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
         description = pluginDescription
         tags = ['scalastyle', 'scala', 'formatter', 'checkstyle']
 
