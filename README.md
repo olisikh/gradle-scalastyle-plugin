@@ -44,7 +44,7 @@ Configure the plugin
 
 ```groovy
 scalaStyle {
-  config = "/path/to/scalaStyle.xml"
+  config = file("/path/to/scalaStyle.xml")
 }
 ```
 
@@ -76,7 +76,7 @@ Other optional properties are
   }
 
   scalaStyle {
-    config = "$rootDir/scalastyle_config.xml"
+    config = file("$rootDir/scalastyle_config.xml")
   }
 ```
 
