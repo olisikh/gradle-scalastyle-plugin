@@ -6,19 +6,38 @@ Gradle plugin for Scalastyle http://www.scalastyle.org/
 
 https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
 
-Use:  \
-`artifactId:  gradle-scalastyle-plugin_2.10` if you want to use with Scala `2.10`  \
-`artifactId:  gradle-scalastyle-plugin_2.11` if you want to use with Scala `2.11`  \
-`artifactId:  gradle-scalastyle-plugin_2.12` if you want to use with Scala `2.12`
+Use:
 
-```groovy
-  apply plugin: 'scalaStyle'
+```
+plugins {
+  id "com.github.alisiikh.scalastyle_2.10" version "2.0.0"
+}
+```
+```
+plugins {
+  id "com.github.alisiikh.scalastyle_2.11" version "2.0.0"
+}
+```
+```
+plugins {
+  id "com.github.alisiikh.scalastyle_2.12" version "2.0.0"
+}
 ```
 
-Add following dependencies to your buildScript
+Or via buildScript:
+```
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "gradle.plugin.org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.10:2.0.0" // or 2.11, 2.12
+  }
+}
 
-```groovy
-  classpath "org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0"
+apply plugin: "com.github.alisiikh.scalastyle_2.10" // or 2.11, 2.12
 ```
 
 Configure the plugin

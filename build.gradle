@@ -20,7 +20,7 @@ buildscript {
 }
 
 plugins {
-    id "com.gradle.plugin-publish" version "0.10.0"
+    id 'com.gradle.plugin-publish' version '0.10.0'
 }
 
 version = projectVersion
@@ -28,7 +28,9 @@ group = projectGroup
 
 ['2.10', '2.11', '2.12'].each { scalaVersion ->
     project(":gradle-scalastyle-plugin_$scalaVersion") {
-        ext.scalaDist = scalaVersion
+        ext {
+            scalaDist = scalaVersion
+        }
     }
 }
 
@@ -107,7 +109,7 @@ subprojects {
     compileGroovy.dependsOn(compileScala)
 
     pluginBundle {
-        def pluginDescription = 'Gradle plugin for scalastyle'
+        def pluginDescription = "Gradle plugin for scalastyle ${scalaDist}"
 
         website = 'https://github.com/alisiikh/gradle-scalaxb-plugin'
         vcsUrl = 'https://github.com/alisiikh/gradle-scalaxb-plugin'
@@ -116,7 +118,7 @@ subprojects {
 
         plugins {
             scalaStylePlugin {
-                id = 'com.github.alisiikh.scalaStyle'
+                id = "com.github.alisiikh.scalastyle_${scalaDist}"
                 displayName = pluginDescription
             }
         }
