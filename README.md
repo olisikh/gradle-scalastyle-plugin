@@ -6,7 +6,7 @@
 
 ```
 maven repo: http://jcenter.bintray.com/
-groupId: org.github.ngbinh.scalastyle
+groupId: org.github.alisiikh.scalastyle
 artifactId:  gradle-scalastyle-plugin_2.11
 version: 1.0.1
 ```
@@ -20,19 +20,15 @@ Use `artifactId:  gradle-scalastyle-plugin_2.10` if you want to use with Scala `
 Add following dependencies to your buildScript
 
 ```groovy
-  classpath "org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1"
+  classpath "org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0"
 ```
 
 Configure the plugin
 
 ```groovy
-  scalaStyle {
-    configLocation = "/path/to/scalaStyle.xml"
-    includeTestSourceDirectory = true
-    source = "src/main/scala"
-    testSource = "src/test/scala"
-  }
-
+scalaStyle {
+  config = "/path/to/scalaStyle.xml"
+}
 ```
 
 Other optional properties are
@@ -45,8 +41,6 @@ Other optional properties are
   skip  //Default => false
   verbose //Default => false
   quiet //Default => false
-  includeTestSourceDirectory //Default => false
-  testConfigLocation //Separate configuration file to be used for test sources
   inputEncoding //Default => UTF-8
 ```
 
@@ -60,14 +54,17 @@ Other optional properties are
     }
 
     dependencies {
-      classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
+      classpath 'org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
     }
   }
 
   scalaStyle {
-    configLocation = "mega-project/sub-project/scalastyle_config.xml"
-    includeTestSourceDirectory = true
-    source = "src/main/scala"
-    testSource = "src/test/scala"
+    config = "$rootDir/scalastyle_config.xml"
+
+    sourceSets {
+      test {
+        config = "$rootDir/scalastyle_test.xml"
+      }
+    }
   }
 ```

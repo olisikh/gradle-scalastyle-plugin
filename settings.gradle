@@ -18,4 +18,6 @@
 
 rootProject.name = projectName
 
-include 'gradle-scalastyle-plugin_2.10', 'gradle-scalastyle-plugin_2.11', 'gradle-scalastyle-plugin_2.12'
+include 'gradle-scalastyle-plugin_2.10',
+        'gradle-scalastyle-plugin_2.11',
+        'gradle-scalastyle-plugin_2.12'
