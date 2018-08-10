@@ -1,52 +1,63 @@
 # Scala Style Gradle Plugin
 
-[![Build Status](https://travis-ci.org/ngbinh/gradle-scalastyle-plugin.svg?branch=master)](https://travis-ci.org/ngbinh/gradle-scalastyle-plugin)
+Gradle plugin for Scalastyle http://www.scalastyle.org/
 
 ### Instructions
 
+https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
+
+Use:
+
 ```
-maven repo: http://jcenter.bintray.com/
-groupId: org.github.ngbinh.scalastyle
-artifactId:  gradle-scalastyle-plugin_2.11
-version: 1.0.1
+plugins {
+  id "com.github.alisiikh.scalastyle_2.10" version "2.0.0"
+}
+```
+```
+plugins {
+  id "com.github.alisiikh.scalastyle_2.11" version "2.0.0"
+}
+```
+```
+plugins {
+  id "com.github.alisiikh.scalastyle_2.12" version "2.0.0"
+}
 ```
 
-Use `artifactId:  gradle-scalastyle-plugin_2.10` if you want to use with Scala `2.10`
-
-```groovy
-  apply plugin: 'scalaStyle'
+Or via buildScript:
 ```
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "gradle.plugin.org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.10:2.0.0" // or 2.11, 2.12
+  }
+}
 
-Add following dependencies to your buildScript
-
-```groovy
-  classpath "org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1"
+apply plugin: "com.github.alisiikh.scalastyle_2.10" // or 2.11, 2.12
 ```
 
 Configure the plugin
 
 ```groovy
-  scalaStyle {
-    configLocation = "/path/to/scalaStyle.xml"
-    includeTestSourceDirectory = true
-    source = "src/main/scala"
-    testSource = "src/test/scala"
-  }
-
+scalaStyle {
+  config = file("/path/to/scalaStyle.xml")
+}
 ```
 
 Other optional properties are
 
 ```groovy
-  outputFile  //Default => $buildDir/scala_style_result.xml
+  output //Default => ${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml
   outputEncoding //Default => UTF-8
   failOnViolation //Default => true
   failOnWarning //Default => false
   skip  //Default => false
   verbose //Default => false
   quiet //Default => false
-  includeTestSourceDirectory //Default => false
-  testConfigLocation //Separate configuration file to be used for test sources
   inputEncoding //Default => UTF-8
 ```
 
@@ -56,18 +67,48 @@ Other optional properties are
 
   buildscript {
     repositories {
-      jcenter() // only work after gradle 1.7
+      jcenter()
     }
 
     dependencies {
-      classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
+      classpath 'org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
     }
   }
 
   scalaStyle {
-    configLocation = "mega-project/sub-project/scalastyle_config.xml"
-    includeTestSourceDirectory = true
-    source = "src/main/scala"
-    testSource = "src/test/scala"
+    config = file("$rootDir/scalastyle_config.xml")
+  }
+```
+
+#### Custom configuration per sourceSet
+```
+  apply plugin: 'scalaStyle'
+
+  buildscript {
+    repositories {
+      jcenter()
+    }
+
+    dependencies {
+      classpath 'org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
+    }
+  }
+
+  scalaStyle {
+    config = file("$rootDir/scalastyle_config.xml")
+
+    sourceSets {
+      test {
+        // specifically configure scalastyle for test sourceSet
+        config = file("$rootDir/scalastyle_test.xml")
+        failOnWarnings = true
+      }
+
+      intTest {
+        // override output report for intTest sourceSet
+        // but still use global scalastyle_config.xml
+        output = file("$projectDir/scalastyle-intTest-check.xml")
+      }
+    }
   }
 ```

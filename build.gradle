@@ -20,16 +20,17 @@ buildscript {
 }
 
 plugins {
-    id "com.jfrog.bintray" version "1.3.1"
+    id 'com.gradle.plugin-publish' version '0.10.0'
 }
 
 version = projectVersion
 group = projectGroup
 
-// Define projects
 ['2.10', '2.11', '2.12'].each { scalaVersion ->
     project(":gradle-scalastyle-plugin_$scalaVersion") {
-        ext.scalaDist = scalaVersion
+        ext {
+            scalaDist = scalaVersion
+        }
     }
 }
 
@@ -45,9 +46,8 @@ subprojects {
     apply plugin: "java"
     apply plugin: "scala"
     apply plugin: "groovy"
-    apply plugin: 'signing' // For pushing to Sonatype OSS Staging repository
-    apply plugin: 'com.jfrog.bintray'
     apply plugin: 'maven-publish'
+    apply plugin: 'com.gradle.plugin-publish'
 
     // JRE 1.6 should work
     sourceCompatibility = 1.8
@@ -108,93 +108,19 @@ subprojects {
 
     compileGroovy.dependsOn(compileScala)
 
-    // Required for Sonatype
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        from sourceSets.main.allSource
-        classifier "sources"
-        extension "jar"
-    }
+    pluginBundle {
+        def pluginDescription = "Gradle plugin for scalastyle ${scalaDist}"
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        from javadoc.destinationDir
-        classifier "javadoc"
-        extension "jar"
-    }
+        website = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
+        vcsUrl = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
+        description = pluginDescription
+        tags = ['scalastyle', 'scala', 'formatter', 'checkstyle']
 
-  configurations.create("sources")
-  configurations.create("javadoc")
-  configurations.archives {
-      extendsFrom configurations.sources
-      extendsFrom configurations.javadoc
-  }
-
-    // Used for testing the plugin in a local project.
-    task unversionedJar(type: Jar, dependsOn: 'jar') {
-        version = null
-        from sourceSets.main.output
-    }
-
-    task installPlugin(type: Copy, dependsOn: 'unversionedJar') {
-        def gradleInstallDir = gradle.gradleHomeDir
-        group = 'installation'
-        description = 'Installs the plugin jar in your gradle distribution.'
-        from "${buildDir}/libs/${unversionedJar.archiveName}"
-        into "/${gradleInstallDir}/lib/plugins"
-        doLast {
-            println "Installed in: ${gradleInstallDir}/lib/plugins as: ${unversionedJar.archiveName}"
-        }
-    }
-
-    task uninstallPlugin(type: Delete) {
-        def gradleInstallDir = gradle.gradleHomeDir
-        group = 'installation'
-        description = 'Removes the plugin from your gradle distribution.'
-        delete("/${gradleInstallDir}/lib/plugins/${unversionedJar.archiveName}")
-    }
-
-    artifacts {
-        sources(sourcesJar) {
-            type "jar"
-        }
-        javadoc(javadocJar) {
-            type "javadoc"
-        }
-    }
-
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                groupId = projectGroup
-
-                artifact sourcesJar {
-                    classifier "sources"
-                }
-
-                artifact javadocJar {
-                    classifier "javadoc"
-                }
+        plugins {
+            scalaStylePlugin {
+                id = "com.github.alisiikh.scalastyle_${scalaDist}"
+                displayName = pluginDescription
             }
-        }
-    }
-
-    bintray {
-        user = project.hasProperty('bintray_user') ? project.bintray_user : System.getenv('BINTRAY_USER')
-        key = project.hasProperty('bintray_key') ? project.bintray_key : System.getenv('BINTRAY_API_KEY')
-
-        publications = ['mavenJava']
-        pkg {
-            repo = 'maven'
-            name = project.name
-            desc = 'gradle-scalastyle is a Gradle plugin for running the Scalastyle style checker.'
-            licenses = ['Apache-2.0']
-            labels = [version]
-            desc = 'Gradle plugin for scalaStyle'
-            websiteUrl = projectHomepage
-            issueTrackerUrl = 'https://github.com/ngbinh/gradle-scalastyle-plugin/issues'
-            vcsUrl = 'https://github.com/ngbinh/gradle-scalastyle-plugin.git'
-            licenses = ['Apache-2.0']
-            publicDownloadNumbers = true
         }
     }
 }
