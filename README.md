@@ -6,9 +6,10 @@ Gradle plugin for Scalastyle http://www.scalastyle.org/
 
 https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
 
-Use `artifactId:  gradle-scalastyle-plugin_2.10` if you want to use with Scala `2.10`
-Use `artifactId:  gradle-scalastyle-plugin_2.11` if you want to use with Scala `2.11`
-Use `artifactId:  gradle-scalastyle-plugin_2.12` if you want to use with Scala `2.12`
+Use:  \
+`artifactId:  gradle-scalastyle-plugin_2.10` if you want to use with Scala `2.10`  \
+`artifactId:  gradle-scalastyle-plugin_2.11` if you want to use with Scala `2.11`  \
+`artifactId:  gradle-scalastyle-plugin_2.12` if you want to use with Scala `2.12`
 
 ```groovy
   apply plugin: 'scalaStyle'
