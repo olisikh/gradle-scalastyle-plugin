@@ -4,7 +4,7 @@ Gradle plugin for Scalastyle http://www.scalastyle.org/
 
 ### Instructions
 
-https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
+https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle_2.12
 
 Use:
 
