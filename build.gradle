@@ -26,7 +26,6 @@ plugins {
 version = projectVersion
 group = projectGroup
 
-// Define projects
 ['2.10', '2.11', '2.12'].each { scalaVersion ->
     project(":gradle-scalastyle-plugin_$scalaVersion") {
         ext.scalaDist = scalaVersion

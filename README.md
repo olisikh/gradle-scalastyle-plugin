@@ -1,17 +1,14 @@
 # Scala Style Gradle Plugin
 
-[![Build Status](https://travis-ci.org/ngbinh/gradle-scalastyle-plugin.svg?branch=master)](https://travis-ci.org/ngbinh/gradle-scalastyle-plugin)
+Gradle plugin for Scalastyle http://www.scalastyle.org/
 
 ### Instructions
 
-```
-maven repo: http://jcenter.bintray.com/
-groupId: org.github.alisiikh.scalastyle
-artifactId:  gradle-scalastyle-plugin_2.11
-version: 1.0.1
-```
+https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
 
 Use `artifactId:  gradle-scalastyle-plugin_2.10` if you want to use with Scala `2.10`
+Use `artifactId:  gradle-scalastyle-plugin_2.11` if you want to use with Scala `2.11`
+Use `artifactId:  gradle-scalastyle-plugin_2.12` if you want to use with Scala `2.12`
 
 ```groovy
   apply plugin: 'scalaStyle'
@@ -34,7 +31,7 @@ scalaStyle {
 Other optional properties are
 
 ```groovy
-  outputFile  //Default => $buildDir/scala_style_result.xml
+  outputFile  //Default => ${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml
   outputEncoding //Default => UTF-8
   failOnViolation //Default => true
   failOnWarning //Default => false
@@ -50,7 +47,26 @@ Other optional properties are
 
   buildscript {
     repositories {
-      jcenter() // only work after gradle 1.7
+      jcenter()
+    }
+
+    dependencies {
+      classpath 'org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
+    }
+  }
+
+  scalaStyle {
+    config = "$rootDir/scalastyle_config.xml"
+  }
+```
+
+#### Custom configuration per sourceSet
+```
+  apply plugin: 'scalaStyle'
+
+  buildscript {
+    repositories {
+      jcenter()
     }
 
     dependencies {
@@ -63,7 +79,9 @@ Other optional properties are
 
     sourceSets {
       test {
+        // specifically configure scalastyle for test sourceSet
         config = "$rootDir/scalastyle_test.xml"
+        failOnWarnings = true
       }
     }
   }
