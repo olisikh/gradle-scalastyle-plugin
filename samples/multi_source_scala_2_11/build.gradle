@@ -1,16 +1,16 @@
-apply plugin: 'scala'
-apply plugin: 'scalaStyle'
-
 buildscript {
   repositories {
     jcenter() // only work after gradle 1.7
     mavenLocal()
   }
-
-  dependencies {
-    classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:2.0.0'
-  }
 }
+
+plugins {
+    id "com.github.alisiikh.scalastyle_2.11" version "2.0.0"
+}
+
+apply plugin: 'scala'
+
 
 sourceSets {
     garbage {

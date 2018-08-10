@@ -51,7 +51,7 @@ scalaStyle {
 Other optional properties are
 
 ```groovy
-  outputFile  //Default => ${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml
+  output //Default => ${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml
   outputEncoding //Default => UTF-8
   failOnViolation //Default => true
   failOnWarning //Default => false
@@ -95,13 +95,19 @@ Other optional properties are
   }
 
   scalaStyle {
-    config = "$rootDir/scalastyle_config.xml"
+    config = file("$rootDir/scalastyle_config.xml")
 
     sourceSets {
       test {
         // specifically configure scalastyle for test sourceSet
-        config = "$rootDir/scalastyle_test.xml"
+        config = file("$rootDir/scalastyle_test.xml")
         failOnWarnings = true
+      }
+
+      intTest {
+        // override output report for intTest sourceSet
+        // but still use global scalastyle_config.xml
+        output = file("$projectDir/scalastyle-intTest-check.xml")
       }
     }
   }
