@@ -1,5 +1,7 @@
 # Scala Style Gradle Plugin
 
+![Build](https://travis-ci.org/alisiikh/gradle-scalastyle-plugin.svg?branch=master)
+
 Gradle plugin for Scalastyle http://www.scalastyle.org/
 
 Originally forked from: https://github.com/ngbinh/gradle-scalastyle-plugin
