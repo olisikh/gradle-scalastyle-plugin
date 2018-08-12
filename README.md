@@ -37,7 +37,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.10:2.0.0" // or 2.11, 2.12
+    classpath "com.github.alisiikh:gradle-scalastyle-plugin_2.10:2.0.0" // or 2.11, 2.12
   }
 }
 
@@ -74,7 +74,7 @@ Other optional properties are
     }
 
     dependencies {
-      classpath 'com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
+      classpath 'com.github.alisiikh:gradle-scalastyle-plugin_2.12:2.0.0'
     }
   }
 
@@ -94,7 +94,7 @@ Other optional properties are
     }
 
     dependencies {
-      classpath 'com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
+      classpath 'com.github.alisiikh:gradle-scalastyle-plugin_2.12:2.0.0'
     }
   }
 
