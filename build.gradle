@@ -16,23 +16,15 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
-}
-
-plugins {
-    id 'com.gradle.plugin-publish' version '0.10.0'
+    dependencies {
+        classpath "com.gradle.publish:plugin-publish-plugin:0.10.0"
+    }
 }
 
 version = projectVersion
 group = projectGroup
-
-['2.10', '2.11', '2.12'].each { scalaVersion ->
-    project(":gradle-scalastyle-plugin_$scalaVersion") {
-        ext {
-            scalaDist = scalaVersion
-        }
-    }
-}
 
 ext {
     pluginSrc = "$rootDir/src"
@@ -42,88 +34,96 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.7'
 }
 
-subprojects {
-    apply plugin: "java"
-    apply plugin: "scala"
-    apply plugin: "groovy"
-    apply plugin: 'maven-publish'
-    apply plugin: 'com.gradle.plugin-publish'
+['2.10', '2.11', '2.12'].each { scalaVersion ->
+    project(":gradle-scalastyle-plugin_$scalaVersion") {
+        apply plugin: 'scala'
+        apply plugin: 'groovy'
+        apply plugin: 'maven-publish'
+        apply plugin: 'com.gradle.plugin-publish'
 
-    // JRE 1.6 should work
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
 
-    version = projectVersion
-    group = projectGroup
+        version = projectVersion
+        group = projectGroup
 
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-
-    dependencies {
-        compile gradleApi()
-        compile localGroovy()
-
-        compile "org.scalastyle:scalastyle_${scalaDist}:1.0.0"
-        testCompile gradleTestKit()
-        testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
-            exclude module: 'groovy-all'
+        repositories {
+            mavenCentral()
+            jcenter()
         }
-        testCompile 'commons-io:commons-io:2.5'
-    }
 
-    sourceSets {
-        main {
-            scala {
-                srcDirs = ["$pluginSrc/main/scala"]
+        dependencies {
+            compile gradleApi()
+            compile localGroovy()
+
+            compile "org.scalastyle:scalastyle_${scalaVersion}:1.0.0"
+            testCompile gradleTestKit()
+            testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
+                exclude module: 'groovy-all'
             }
-            groovy {
-                srcDirs = ["$pluginSrc/main/groovy"]
-                compileClasspath += files([sourceSets.main.scala.outputDir])
+            testCompile 'commons-io:commons-io:2.5'
+        }
+
+        sourceSets {
+            main {
+                scala {
+                    srcDirs = ["$pluginSrc/main/scala"]
+                }
+                groovy {
+                    srcDirs = ["$pluginSrc/main/groovy"]
+                    compileClasspath += files([sourceSets.main.scala.outputDir])
+                }
+                resources {
+                    srcDirs = ["$pluginSrc/main/resources"]
+                }
             }
-            resources {
-                srcDirs = ["$pluginSrc/main/resources"]
+            test {
+                groovy {
+                    srcDirs = ["$pluginSrc/test/groovy"]
+                }
+                resources {
+                    srcDirs = ["$pluginSrc/test/resources"]
+                }
             }
         }
+
         test {
-            groovy {
-                srcDirs = ["$pluginSrc/test/groovy"]
+            dependsOn 'publishToMavenLocal'
+
+            testLogging {
+                showStandardStreams = true
             }
-            resources {
-                srcDirs = ["$pluginSrc/test/resources"]
+            systemProperty 'SCALA_VERSION', scalaVersion
+            systemProperty 'PLUGIN_VERSION', version
+        }
+
+        compileGroovy.dependsOn(compileScala)
+
+        publishing {
+            publications {
+                maven(MavenPublication) {
+                    from components.java
+                }
             }
         }
-    }
 
-    test {
-        dependsOn 'publishToMavenLocal'
+        pluginBundle {
+            def pluginDescription = "Gradle plugin for scalastyle ${scalaVersion}"
 
-        testLogging {
-            showStandardStreams = true
-        }
-        systemProperty 'SCALA_VERSION', scalaDist
-        systemProperty 'PLUGIN_VERSION', version
-    }
+            mavenCoordinates {
+                groupId = "com.github.alisiikh"
+            }
 
-    compileGroovy.dependsOn(compileScala)
+            website = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
+            vcsUrl = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
+            description = pluginDescription
+            tags = ['scalastyle', 'scala', 'formatter', 'checkstyle']
 
-    pluginBundle {
-        def pluginDescription = "Gradle plugin for scalastyle ${scalaDist}"
-
-        mavenCoordinates {
-            groupId = "com.github.alisiikh"
-        }
-
-        website = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
-        vcsUrl = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
-        description = pluginDescription
-        tags = ['scalastyle', 'scala', 'formatter', 'checkstyle']
-
-        plugins {
-            scalaStylePlugin {
-                id = "com.github.alisiikh.scalastyle_${scalaDist}"
-                displayName = pluginDescription
+            plugins {
+                scalaStylePlugin {
+                    id = "com.github.alisiikh.scalastyle_${scalaVersion}"
+                    displayName = pluginDescription
+                }
             }
         }
     }

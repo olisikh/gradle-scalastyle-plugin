@@ -33,7 +33,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.10:2.0.0" // or 2.11, 2.12
+    classpath "com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.10:2.0.0" // or 2.11, 2.12
   }
 }
 
@@ -63,17 +63,17 @@ Other optional properties are
 
 #### Full Buildscript Example
 ```groovy
-  apply plugin: 'scalaStyle'
-
   buildscript {
     repositories {
       jcenter()
     }
 
     dependencies {
-      classpath 'org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
+      classpath 'com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
     }
   }
+
+  apply plugin: 'com.github.alisiikh.scalastyle_2.12'
 
   scalaStyle {
     config = file("$rootDir/scalastyle_config.xml")
@@ -82,17 +82,17 @@ Other optional properties are
 
 #### Custom configuration per sourceSet
 ```
-  apply plugin: 'scalaStyle'
-
   buildscript {
     repositories {
       jcenter()
     }
 
     dependencies {
-      classpath 'org.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
+      classpath 'com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
     }
   }
+
+  apply plugin: 'com.github.alisiikh.scalastyle_2.12'
 
   scalaStyle {
     config = file("$rootDir/scalastyle_config.xml")
