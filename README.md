@@ -8,24 +8,24 @@ https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle_2.12
 
 Use:
 
-```
+```groovy
 plugins {
   id "com.github.alisiikh.scalastyle_2.10" version "2.0.0"
 }
 ```
-```
+```groovy
 plugins {
   id "com.github.alisiikh.scalastyle_2.11" version "2.0.0"
 }
 ```
-```
+```groovy
 plugins {
   id "com.github.alisiikh.scalastyle_2.12" version "2.0.0"
 }
 ```
 
 Or via buildScript:
-```
+```groovy
 buildscript {
   repositories {
     maven {
