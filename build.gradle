@@ -111,6 +111,10 @@ subprojects {
     pluginBundle {
         def pluginDescription = "Gradle plugin for scalastyle ${scalaDist}"
 
+        mavenCoordinates {
+            groupId = "com.github.alisiikh"
+        }
+
         website = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
         vcsUrl = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
         description = pluginDescription
