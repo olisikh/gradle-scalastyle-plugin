@@ -2,6 +2,8 @@
 
 Gradle plugin for Scalastyle http://www.scalastyle.org/
 
+Originally forked from: https://github.com/ngbinh/gradle-scalastyle-plugin
+
 ### Instructions
 
 https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle_2.12
