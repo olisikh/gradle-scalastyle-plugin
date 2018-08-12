@@ -23,9 +23,6 @@ abstract class ScalaStyleSpec extends Specification {
 
     def generateBuildGradleFile(String scalaStyleOverrides = null) {
         testProjectDir.newFile("build.gradle") << """
-apply plugin: 'scala'
-apply plugin: 'scalaStyle'
-
 buildscript {
     repositories {
         jcenter()
@@ -33,9 +30,12 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_${scalaVersion}:${pluginVersion}'
+        classpath 'com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_${scalaVersion}:${pluginVersion}'
     }
 }
+apply plugin: 'scala'
+apply plugin: 'com.github.alisiikh.scalastyle_${scalaVersion}'
+
 
 ${scalaStyleOverrides ?: """
 scalaStyle {
