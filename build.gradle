@@ -47,6 +47,10 @@ task wrapper(type: Wrapper) {
         version = projectVersion
         group = projectGroup
 
+        ext {
+            pluginDescription = "Gradle plugin for scalastyle ${scalaVersion}"
+        }
+
         repositories {
             mavenCentral()
             jcenter()
@@ -108,14 +112,12 @@ task wrapper(type: Wrapper) {
         }
 
         pluginBundle {
-            def pluginDescription = "Gradle plugin for scalastyle ${scalaVersion}"
-
             mavenCoordinates {
-                groupId = "com.github.alisiikh"
+                groupId = projectGroup
             }
 
-            website = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
-            vcsUrl = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
+            website = projectGithub
+            vcsUrl = projectGithub
             description = pluginDescription
             tags = ['scalastyle', 'scala', 'formatter', 'checkstyle']
 

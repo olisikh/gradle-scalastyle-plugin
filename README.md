@@ -1,5 +1,7 @@
 # Scala Style Gradle Plugin
 
+![Build](https://travis-ci.org/alisiikh/gradle-scalastyle-plugin.svg?branch=master)
+
 Gradle plugin for Scalastyle http://www.scalastyle.org/
 
 Originally forked from: https://github.com/ngbinh/gradle-scalastyle-plugin
@@ -35,7 +37,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.10:2.0.0" // or 2.11, 2.12
+    classpath "com.github.alisiikh:gradle-scalastyle-plugin_2.10:2.0.0" // or 2.11, 2.12
   }
 }
 
@@ -72,7 +74,7 @@ Other optional properties are
     }
 
     dependencies {
-      classpath 'com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
+      classpath 'com.github.alisiikh:gradle-scalastyle-plugin_2.12:2.0.0'
     }
   }
 
@@ -92,7 +94,7 @@ Other optional properties are
     }
 
     dependencies {
-      classpath 'com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_2.12:2.0.0'
+      classpath 'com.github.alisiikh:gradle-scalastyle-plugin_2.12:2.0.0'
     }
   }
 
