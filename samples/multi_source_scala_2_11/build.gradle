@@ -1,8 +1,9 @@
 buildscript {
-  repositories {
-    jcenter() // only work after gradle 1.7
-    mavenLocal()
-  }
+    repositories {
+        mavenLocal()
+        maven { url "https://plugins.gradle.org/m2/" }
+        jcenter()
+    }
 }
 
 plugins {
