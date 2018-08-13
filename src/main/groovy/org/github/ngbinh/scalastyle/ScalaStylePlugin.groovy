@@ -133,6 +133,8 @@ class ScalaStylePlugin implements Plugin<Project> {
                         } else {
                             logger.debug("Scalastyle:check no violations found")
                         }
+                    } catch (GradleException ex) {
+                        throw ex
                     } catch (Exception ex) {
                         throw new GradleException("Scalastyle check error", ex)
                     }

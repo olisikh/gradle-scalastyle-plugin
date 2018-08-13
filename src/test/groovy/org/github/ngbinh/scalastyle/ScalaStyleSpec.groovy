@@ -30,7 +30,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.github.alisiikh.scalastyle:gradle-scalastyle-plugin_${scalaVersion}:${pluginVersion}'
+        classpath 'com.github.alisiikh:gradle-scalastyle-plugin_${scalaVersion}:${pluginVersion}'
     }
 }
 apply plugin: 'scala'
