@@ -4,13 +4,14 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
         jcenter()
     }
+    dependencies {
+        classpath 'com.github.alisiikh:gradle-scalastyle-plugin_2.11:2.1.0'
+    }
 }
 
-plugins {
-    id "com.github.alisiikh.scalastyle_2.11" version "2.0.0"
-}
 
 apply plugin: 'scala'
+apply plugin: 'com.github.alisiikh.scalastyle_2.11'
 
 
 sourceSets {

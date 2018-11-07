@@ -21,7 +21,7 @@ class ScalaStyleUsesCacheSpec extends ScalaStyleFunSpec {
         when: "run again without clean"
         result = executeGradle('scalaStyleCheck')
 
-        then: "scalaStyle should not be run"
+        then: "scalaStyleCheck should not be run"
         result.task(":scalaStyleCheck").outcome == UP_TO_DATE
         result.task(':scalaStyleMainCheck').outcome == UP_TO_DATE
         result.task(':scalaStyleTestCheck').outcome == NO_SOURCE

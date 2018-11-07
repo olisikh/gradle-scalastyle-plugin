@@ -3,14 +3,14 @@ package org.github.ngbinh.scalastyle
 import org.gradle.api.NamedDomainObjectContainer
 
 abstract class BaseScalaStyle {
-    Boolean skip = false
+    Boolean skip
     File config
-    String outputEncoding = "UTF-8"
-    Boolean failOnViolation = true
-    Boolean failOnWarning = false
-    Boolean verbose = false
-    Boolean quiet = false
-    String inputEncoding = "UTF-8"
+    String outputEncoding
+    Boolean failOnViolation
+    Boolean failOnWarning
+    Boolean verbose
+    Boolean quiet
+    String inputEncoding
 }
 
 class ScalaStyleSourceSet extends BaseScalaStyle {

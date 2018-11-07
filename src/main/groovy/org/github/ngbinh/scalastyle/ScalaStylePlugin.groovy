@@ -51,11 +51,13 @@ class ScalaStylePlugin implements Plugin<Project> {
     }
 
     private def setupScalaStyle() {
-        project.task('scalaStyleCheck') {
+        def scalaStyleCheckTask = project.task('scalaStyleCheck') {
             group = 'verification'
             description = "Runs scalastyle checks."
 
             project.afterEvaluate {
+                setupExtensionDefaults()
+
                 ScalastyleConfiguration scalaStyleConfig
                 if (extension.config != null) {
                     logger.info("Loading scalastyle configuration: ${extension.config.absolutePath}")
@@ -75,6 +77,8 @@ class ScalaStylePlugin implements Plugin<Project> {
                 dependsOn scalaStyleTasks
             }
         }
+
+        project.check.dependsOn(scalaStyleCheckTask)
     }
 
     private def createScalaStyleTask(String srcSetName, List<File> srcDirs, ScalastyleConfiguration scalaStyleConfig) {
@@ -123,7 +127,7 @@ class ScalaStylePlugin implements Plugin<Project> {
                             logger.lifecycle("Finished in {} ms", stopMs - startMs)
                         }
 
-                        def violations = outputResult.errors() + ((options.failOnWarning) ? outputResult.warnings() : 0)
+                        def violations = outputResult.errors() + (options.failOnWarning ? outputResult.warnings() : 0)
                         if (violations > 0) {
                             if (options.failOnViolation) {
                                 throw new GradleException("You have $violations Scalastyle violation(s).")
@@ -142,6 +146,18 @@ class ScalaStylePlugin implements Plugin<Project> {
             }
         } else {
             null
+        }
+    }
+
+    private def setupExtensionDefaults() {
+        extension.with {
+            skip = skip == null ? false : skip
+            failOnWarning = failOnWarning == null ? false : failOnWarning
+            failOnViolation = failOnViolation == null ? true : failOnViolation
+            inputEncoding = inputEncoding == null ? "UTF-8" : inputEncoding
+            outputEncoding = outputEncoding == null ? "UTF-8" : outputEncoding
+            verbose = verbose == null ? false : verbose
+            quiet = quiet == null ? false : quiet
         }
     }
 
