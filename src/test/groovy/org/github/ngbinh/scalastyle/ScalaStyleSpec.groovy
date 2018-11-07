@@ -49,7 +49,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:${scalaVersion}.1'
+    compile 'org.scala-lang:scala-library:${scalaVersion}.6'
 }
 
 ScalaCompileOptions.metaClass.useAnt = false
