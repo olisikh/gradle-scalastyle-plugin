@@ -92,7 +92,7 @@ Other optional properties are
   apply plugin: 'com.github.alisiikh.scalastyle'
 
   scalastyle {
-    config = file("$rootDir/scalastyle_config.xml")
+    config = file("$rootDir/scalastyle-config.xml")
 
     sourceSets {
       test {
@@ -103,7 +103,7 @@ Other optional properties are
 
       intTest {
         // override output report for intTest sourceSet
-        // but still use global scalastyle_config.xml
+        // but still use global scalastyle-config.xml for other source sets if any
         output = file("$projectDir/scalastyle-intTest-check.xml")
       }
     }
