@@ -23,110 +23,79 @@ buildscript {
     }
 }
 
-version = projectVersion
-group = projectGroup
+version = '3.0.0'
+group = 'com.github.alisiikh'
 
 ext {
-    pluginSrc = "$rootDir/src"
+    scalaVersion = '2.12'
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '4.7'
 }
 
-['2.10', '2.11', '2.12'].each { scalaVersion ->
-    project(":gradle-scalastyle-plugin_$scalaVersion") {
-        apply plugin: 'scala'
-        apply plugin: 'groovy'
-        apply plugin: 'maven-publish'
-        apply plugin: 'com.gradle.plugin-publish'
+apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+apply plugin: 'com.gradle.plugin-publish'
 
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
-        version = projectVersion
-        group = projectGroup
+ext {
+    projectGithub = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
 
-        ext {
-            pluginDescription = "Gradle plugin for scalastyle ${scalaVersion}"
+    pluginId = 'com.github.alisiikh.scalastyle'
+    pluginDescription = 'Gradle plugin for scalastyle'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+
+    testCompile gradleTestKit()
+    testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
+        exclude module: 'groovy-all'
+    }
+    testCompile 'commons-io:commons-io:2.5'
+}
+
+test {
+    dependsOn 'publishToMavenLocal'
+
+    testLogging {
+        showStandardStreams = true
+    }
+    systemProperty 'SCALA_VERSION', scalaVersion
+    systemProperty 'PLUGIN_VERSION', version
+}
+
+publishing {
+    publications {
+        plugin(MavenPublication) {
+            from components.java
         }
+    }
+}
 
-        repositories {
-            mavenCentral()
-            jcenter()
-        }
+pluginBundle {
+    mavenCoordinates {
+        groupId = project.group
+    }
 
-        dependencies {
-            compile gradleApi()
-            compile localGroovy()
+    website = projectGithub
+    vcsUrl = projectGithub
+    description = pluginDescription
+    tags = ['scalastyle', 'scala', 'code analysis', 'checkstyle']
 
-            compile "org.scalastyle:scalastyle_${scalaVersion}:1.0.0"
-            testCompile gradleTestKit()
-            testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
-                exclude module: 'groovy-all'
-            }
-            testCompile 'commons-io:commons-io:2.5'
-        }
-
-        sourceSets {
-            main {
-                scala {
-                    srcDirs = ["$pluginSrc/main/scala"]
-                }
-                groovy {
-                    srcDirs = ["$pluginSrc/main/groovy"]
-                    compileClasspath += files([sourceSets.main.scala.outputDir])
-                }
-                resources {
-                    srcDirs = ["$pluginSrc/main/resources"]
-                }
-            }
-            test {
-                groovy {
-                    srcDirs = ["$pluginSrc/test/groovy"]
-                }
-                resources {
-                    srcDirs = ["$pluginSrc/test/resources"]
-                }
-            }
-        }
-
-        test {
-            dependsOn 'publishToMavenLocal'
-
-            testLogging {
-                showStandardStreams = true
-            }
-            systemProperty 'SCALA_VERSION', scalaVersion
-            systemProperty 'PLUGIN_VERSION', version
-        }
-
-        compileGroovy.dependsOn(compileScala)
-
-        publishing {
-            publications {
-                maven(MavenPublication) {
-                    from components.java
-                }
-            }
-        }
-
-        pluginBundle {
-            mavenCoordinates {
-                groupId = projectGroup
-            }
-
-            website = projectGithub
-            vcsUrl = projectGithub
-            description = pluginDescription
-            tags = ['scalastyle', 'scala', 'formatter', 'checkstyle']
-
-            plugins {
-                scalaStylePlugin {
-                    id = "com.github.alisiikh.scalastyle_${scalaVersion}"
-                    displayName = pluginDescription
-                }
-            }
+    plugins {
+        scalastylePlugin {
+            id = pluginId
+            displayName = pluginDescription
         }
     }
 }

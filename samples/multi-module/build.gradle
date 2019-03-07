@@ -1,0 +1,63 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url "https://plugins.gradle.org/m2/" }
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.alisiikh:gradle-scalastyle-plugin:3.0.0'
+    }
+}
+
+
+apply plugin: 'scala'
+apply plugin: 'com.github.alisiikh.scalastyle'
+
+
+sourceSets {
+    garbage {
+        scala {
+            compileClasspath += main.output
+            runtimeClasspath += main.output
+        }
+    }
+}
+
+configurations {
+    garbageCompile.extendsFrom compile
+    garbageRuntime.extendsFrom compile
+}
+
+scalastyle {
+    scalaVersion = '2.12'
+    scalastyleVersion = '1.0.0'
+
+    // global config, used in case not overriden specifically
+    config = file("$rootDir/scalastyle.xml")
+    verbose = false
+
+    sourceSets {
+        main {
+            // override config
+            config = file("$rootDir/scalastyle_main.xml")
+        }
+
+        test {
+            // override output check file name
+            output = file("$rootDir/scalastyle-test-result.xml")
+        }
+
+        garbage {
+            // do not even create scalastyle task for this source set
+            skip = true
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.11'
+}
