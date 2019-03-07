@@ -8,23 +8,13 @@ Originally forked from: https://github.com/ngbinh/gradle-scalastyle-plugin
 
 ### Instructions
 
-https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle_2.12
+https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
 
 Use:
 
 ```groovy
 plugins {
-  id "com.github.alisiikh.scalastyle_2.10"
-}
-```
-```groovy
-plugins {
-  id "com.github.alisiikh.scalastyle_2.11"
-}
-```
-```groovy
-plugins {
-  id "com.github.alisiikh.scalastyle_2.12"
+  id "com.github.alisiikh.scalastyle"
 }
 ```
 
@@ -37,32 +27,33 @@ buildscript {
     }
   }
   dependencies {
-    classpath "com.github.alisiikh:gradle-scalastyle-plugin_2.10:2.1.0" // or 2.11, 2.12
+    classpath "com.github.alisiikh:gradle-scalastyle-plugin:3.0.0"
   }
 }
 
-apply plugin: "com.github.alisiikh.scalastyle_2.10" // or 2.11, 2.12
+apply plugin: "com.github.alisiikh.scalastyle"
 ```
 
 Configure the plugin
 
 ```groovy
-scalaStyle {
-  config = file("/path/to/scalaStyle.xml")
+scalastyle {
+  scalaVersion = '2.12' // default
+  scalastyleVersion = '1.0.0' // default
+  config = file("${projectDir}/scalastyle.xml")
 }
 ```
 
 Other optional properties are
 
 ```groovy
-  output //Default => ${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml
-  outputEncoding //Default => UTF-8
-  failOnViolation //Default => true
-  failOnWarning //Default => false
-  skip  //Default => false
-  verbose //Default => false
-  quiet //Default => false
-  inputEncoding //Default => UTF-8
+  output = file("${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml") // default
+  inputEncoding = 'UTF-8' // default
+  outputEncoding = 'UTF-8' // default
+  failOnWarning = false // default
+  skip = false  // default
+  verbose = false // default
+  quiet = false // default
 ```
 
 #### Full Buildscript Example
@@ -74,14 +65,14 @@ Other optional properties are
     }
 
     dependencies {
-      classpath 'com.github.alisiikh:gradle-scalastyle-plugin_2.12:2.0.2'
+      classpath 'com.github.alisiikh:gradle-scalastyle-plugin:3.0.0'
     }
   }
 
-  apply plugin: 'com.github.alisiikh.scalastyle_2.12'
+  apply plugin: 'com.github.alisiikh.scalastyle'
 
-  scalaStyle {
-    config = file("$rootDir/scalastyle_config.xml")
+  scalastyle {
+    config = file("$rootDir/scalastyle-config.xml")
   }
 ```
 
@@ -94,20 +85,20 @@ Other optional properties are
     }
 
     dependencies {
-      classpath 'com.github.alisiikh:gradle-scalastyle-plugin_2.12:2.0.2'
+      classpath 'com.github.alisiikh:gradle-scalastyle-plugin:3.0.0'
     }
   }
 
-  apply plugin: 'com.github.alisiikh.scalastyle_2.12'
+  apply plugin: 'com.github.alisiikh.scalastyle'
 
-  scalaStyle {
+  scalastyle {
     config = file("$rootDir/scalastyle_config.xml")
 
     sourceSets {
       test {
         // specifically configure scalastyle for test sourceSet
         config = file("$rootDir/scalastyle_test.xml")
-        failOnWarnings = true
+        failOnWarning = true
       }
 
       intTest {
