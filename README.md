@@ -1,4 +1,4 @@
-# Scala Style Gradle Plugin
+# Scalastyle Gradle Plugin
 
 ![Build](https://travis-ci.org/alisiikh/gradle-scalastyle-plugin.svg?branch=master)
 
