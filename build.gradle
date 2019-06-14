@@ -23,19 +23,22 @@ buildscript {
     }
 }
 
-version = '3.0.0'
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+}
+
+version = '3.0.1'
 group = 'com.github.alisiikh'
 
 ext {
     scalaVersion = '2.12'
 }
 
-task wrapper(type: Wrapper) {
+wrapper {
     gradleVersion = '4.7'
 }
 
-apply plugin: 'groovy'
-apply plugin: 'maven-publish'
 apply plugin: 'com.gradle.plugin-publish'
 
 sourceCompatibility = 1.8
