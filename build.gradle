@@ -23,19 +23,22 @@ buildscript {
     }
 }
 
-version = '3.0.0'
+plugins {
+    id 'groovy'
+    id 'maven-publish'
+}
+
+version = '3.0.1'
 group = 'com.github.alisiikh'
 
 ext {
     scalaVersion = '2.12'
 }
 
-task wrapper(type: Wrapper) {
+wrapper {
     gradleVersion = '4.7'
 }
 
-apply plugin: 'groovy'
-apply plugin: 'maven-publish'
 apply plugin: 'com.gradle.plugin-publish'
 
 sourceCompatibility = 1.8
@@ -54,14 +57,14 @@ repositories {
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
+    implementation gradleApi()
+    implementation localGroovy()
 
-    testCompile gradleTestKit()
-    testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
+    testImplementation gradleTestKit()
+    testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude module: 'groovy-all'
     }
-    testCompile 'commons-io:commons-io:2.5'
+    testImplementation 'commons-io:commons-io:2.5'
 }
 
 test {
