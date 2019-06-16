@@ -28,22 +28,13 @@ import org.gradle.api.provider.Property
 abstract class CommonScalastyleConfig {
     final Property<Boolean> skip
     final Property<File> config
-    final Property<String> inputEncoding
-    final Property<String> outputEncoding
     final Property<Boolean> failOnWarning
-    final Property<Boolean> verbose
-    final Property<Boolean> quiet
 
     CommonScalastyleConfig(Project project) {
         skip = project.objects.property(Boolean)
         config = project.objects.property(File)
-        inputEncoding = project.objects.property(String)
-        outputEncoding = project.objects.property(String)
         failOnWarning = project.objects.property(Boolean)
-        verbose = project.objects.property(Boolean)
-        quiet = project.objects.property(Boolean)
     }
-
 
     void setSkip(boolean skip) {
         this.skip.set(skip)
@@ -53,24 +44,8 @@ abstract class CommonScalastyleConfig {
         this.config.set(config)
     }
 
-    void setInputEncoding(String encoding) {
-        inputEncoding.set(encoding)
-    }
-
-    void setOutputEncoding(String encoding) {
-        outputEncoding.set(encoding)
-    }
-
     void setFailOnWarning(boolean failOnWarning) {
         this.failOnWarning.set(failOnWarning)
-    }
-
-    void setVerbose(boolean verbose) {
-        this.verbose.set(verbose)
-    }
-
-    void setQuiet(boolean quiet) {
-        this.quiet.set(quiet)
     }
 }
 
@@ -85,7 +60,7 @@ class ScalastyleSourceSetConfig extends CommonScalastyleConfig {
         this.name = name
 
         output = project.objects.property(File)
-        output.set(new File(project.buildDir, "scalastyle/${name}/scalastyle-check.xml"))
+        output.convention(new File(project.buildDir, "scalastyle/${name}/scalastyle-check.xml"))
     }
 
     void setOutput(File output) {
@@ -99,6 +74,10 @@ class ScalastyleExtension extends CommonScalastyleConfig {
 
     final Property<String> scalaVersion
     final Property<String> scalastyleVersion
+    final Property<String> inputEncoding
+    final Property<String> outputEncoding
+    final Property<Boolean> verbose
+    final Property<Boolean> quiet
 
     final NamedDomainObjectContainer<ScalastyleSourceSetConfig> sourceSets
 
@@ -109,18 +88,26 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         project.plugins.apply(ScalaPlugin)
 
         scalaVersion = project.objects.property(String)
-        scalaVersion.convention(SCALA_VERSION)
+        scalaVersion.set(SCALA_VERSION)
 
         scalastyleVersion = project.objects.property(String)
-        scalastyleVersion.convention(SCALASTYLE_VERSION)
+        scalastyleVersion.set(SCALASTYLE_VERSION)
+
+        inputEncoding = project.objects.property(String)
+        inputEncoding.set('UTF-8')
+
+        outputEncoding = project.objects.property(String)
+        outputEncoding.set('UTF-8')
+
+        verbose = project.objects.property(Boolean)
+        verbose.set(false)
+
+        quiet = project.objects.property(Boolean)
+        quiet.set(false)
 
         skip.convention(false)
-        config.set(new File(project.projectDir, "scalastyle.xml"))
-        inputEncoding.convention('UTF-8')
-        outputEncoding.convention('UTF-8')
+        config.convention(new File(project.projectDir, "scalastyle_config.xml"))
         failOnWarning.convention(false)
-        verbose.convention(false)
-        quiet.convention(false)
 
         sourceSets = project.container(ScalastyleSourceSetConfig, { name ->
             new ScalastyleSourceSetConfig(project, name)
@@ -133,6 +120,22 @@ class ScalastyleExtension extends CommonScalastyleConfig {
 
     void setScalastyleVersion(String scalastyleVersion) {
         this.scalastyleVersion.set(scalastyleVersion)
+    }
+
+    void setInputEncoding(String encoding) {
+        inputEncoding.set(encoding)
+    }
+
+    void setOutputEncoding(String encoding) {
+        outputEncoding.set(encoding)
+    }
+
+    void setVerbose(boolean verbose) {
+        this.verbose.set(verbose)
+    }
+
+    void setQuiet(boolean quiet) {
+        this.quiet.set(quiet)
     }
 
     def sourceSets(final Closure c) {

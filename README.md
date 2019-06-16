@@ -8,31 +8,7 @@ Originally forked from: https://github.com/ngbinh/gradle-scalastyle-plugin
 
 ### Instructions
 
-https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
-
-Use:
-
-```groovy
-plugins {
-  id "com.github.alisiikh.scalastyle"
-}
-```
-
-Or via buildScript:
-```groovy
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-  dependencies {
-    classpath "com.github.alisiikh:gradle-scalastyle-plugin:3.0.0"
-  }
-}
-
-apply plugin: "com.github.alisiikh.scalastyle"
-```
+Please refer to the plugin page on how to install it: https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
 
 Configure the plugin:
 
@@ -40,95 +16,44 @@ Configure the plugin:
 scalastyle {
   scalaVersion = '2.12' // default
   scalastyleVersion = '1.0.0' // default
-  config = file("${projectDir}/scalastyle.xml") // default
+  config = file("${projectDir}/scalastyle_config.xml") // path to scalastyle config xml file, default: false
+  skip = false  // skips scalastyle check if set to true, default: false
+  inputEncoding = 'UTF-8' // default
+  outputEncoding = 'UTF-8' // default
+  failOnWarning = false // default
+  verbose = false // default
+  quiet = false // default
 }
 ```
 
-Global properties that you can override:
+Properties that can be specified only per source set (when specified, they are used in favor of global ones):
 
 ```groovy
-  inputEncoding = 'UTF-8' // default
-  outputEncoding = 'UTF-8' // default
-  skip = false  // don't create scalastyle tasks, defaults to false
-  failOnWarning = false // fails the build if scalastyle detects a warning rule violation, defaults to false
-  verbose = false // sets -v flag of scalastyle, defaults to false
-  quiet = false // sets -q flag of scalastyle, defaults to false
+  output = file("${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml")
+  config = file("${projectDir}scalastyle_config.xml")
+  skip = false
+  failOnWarning = false
 ```
 
-Properties that can be overridden only per source set:
-
-```groovy
-  output = file("${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml") // default
-```
-
-You can override properties per source set like this:
+Example configuration for a project with multiple source sets and different scalastyle checking rules:
 
 ```groovy
   scalastyle {
+    failOnWarning = true
+    verbose = false
+    quiet = true
+  
+    // source sets must be defined in the project
     sourceSets {
       main {
-        output = "${projectDir}/scalastyle-main-report.xml" // output the main report to a specific location
+        output = file("${projectDir}/scalastyle-main-report.xml") // output the main report to a specific location
       }
       test {
-        quiet = true
-        config = "${projectDir}/scalastyle-test.xml" // use different config just for test source set
+        config = file("${projectDir}/scalastyle-test.xml") // use different config for test
+        failOnWarning = false // fail on warning when running scalastyle for main source set
       }
       perfTest {
-        skip = true // scalastyle will ignore perfTest source set
-      }
-    }
-  }
-```
-
-
-#### Full Buildscript Example
-```groovy
-  buildscript {
-    repositories {
-      jcenter()
-      maven { url "https://plugins.gradle.org/m2/" }
-    }
-
-    dependencies {
-      classpath 'com.github.alisiikh:gradle-scalastyle-plugin:3.0.0'
-    }
-  }
-
-  apply plugin: 'com.github.alisiikh.scalastyle'
-
-  scalastyle {
-    config = file("$rootDir/scalastyle-config.xml")
-  }
-```
-
-#### Custom configuration per sourceSet
-```
-  buildscript {
-    repositories {
-      jcenter()
-      maven { url "https://plugins.gradle.org/m2/" }
-    }
-
-    dependencies {
-      classpath 'com.github.alisiikh:gradle-scalastyle-plugin:3.0.0'
-    }
-  }
-
-  apply plugin: 'com.github.alisiikh.scalastyle'
-
-  scalastyle {
-    config = file("$rootDir/scalastyle-config.xml")
-
-    sourceSets {
-      test {
-        // specifically configure scalastyle for test sourceSet
-        config = file("$rootDir/scalastyle_test.xml")
-        failOnWarning = true
-      }
-
-      intTest {
-        // override output report path only for the intTest sourceSet
-        output = file("$projectDir/scalastyle-intTest-check.xml")
+        skip = true // don't run scalastyle for perfTest source set at all
       }
     }
   }

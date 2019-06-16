@@ -1,18 +1,7 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        maven { url "https://plugins.gradle.org/m2/" }
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.alisiikh:gradle-scalastyle-plugin:3.0.0'
-    }
+plugins {
+    id 'scala'
+    id 'com.github.alisiikh.scalastyle' version '3.1.0'
 }
-
-
-apply plugin: 'scala'
-apply plugin: 'com.github.alisiikh.scalastyle'
-
 
 sourceSets {
     garbage {
@@ -33,7 +22,7 @@ scalastyle {
     scalastyleVersion = '1.0.0'
 
     // global config, used in case not overriden specifically
-    config = file("$rootDir/scalastyle.xml")
+    config = file("$rootDir/scalastyle_config.xml")
     verbose = false
 
     sourceSets {

@@ -63,20 +63,21 @@ class ScalastylePlugin implements Plugin<Project> {
                 if (!skip.get()) {
                     def scalastyleTask = project.tasks.register("scalastyle${sourceSet.name.capitalize()}Check", ScalastyleCheckTask)
 
-                    def taskConfig = resolveTaskConfig(sourceSetConfig, sourceSet.name)
+                    def scalastyleConfig = resolveScalastyleConfig(sourceSetConfig, sourceSet.name)
 
                     scalastyleTask.configure {
                         group = 'verification'
                         description = "Runs scalastyle checks on ${sourceSet.name} source set."
 
                         source = sourceSet.scala.srcDirs
-                        output = taskConfig.output
-                        config = taskConfig.config
-                        verbose = taskConfig.verbose
-                        quiet = taskConfig.quiet
-                        outputEncoding = taskConfig.outputEncoding
-                        inputEncoding = taskConfig.inputEncoding
-                        failOnWarning = taskConfig.failOnWarning
+                        output = sourceSetConfig.output
+                        config = scalastyleConfig
+                        failOnWarning = sourceSetConfig.failOnWarning.isPresent() ?
+                                sourceSetConfig.failOnWarning : extension.failOnWarning
+                        verbose = extension.verbose
+                        quiet = extension.quiet
+                        outputEncoding = extension.outputEncoding
+                        inputEncoding = extension.inputEncoding
                     }
                     scalastyleTask
                 } else {
@@ -93,43 +94,18 @@ class ScalastylePlugin implements Plugin<Project> {
         }
     }
 
-    private def resolveTaskConfig(ScalastyleSourceSetConfig sourceSetConfig, String sourceSetName) {
-        def config = sourceSetConfig.config.isPresent() ?
-                sourceSetConfig.config : extension.config
+    private def resolveScalastyleConfig(ScalastyleSourceSetConfig sourceSetConfig, String sourceSetName) {
+        def config = sourceSetConfig.config.isPresent() ? sourceSetConfig.config : extension.config
 
         def configFile = config.get()
+        project.logger.info(configFile)
         if (!configFile.exists() || configFile.isDirectory()) {
             throw new GradleException("Scalastyle configuration file does not exist at path $configFile")
         } else {
             project.logger.info("Using scalastyle configuration ${configFile} for ${sourceSetName} source set")
         }
 
-        if (!sourceSetConfig.output.isPresent()) {
-            sourceSetConfig.output.set(new File(project.buildDir, "scalastyle/${sourceSetName}/scalastyle-check.xml"))
-        }
-
-        def output = sourceSetConfig.output
-        project.logger.info("Output folder for ${sourceSetName} source set is ${output}")
-
-        [
-                config        : config,
-                output        : output,
-
-                inputEncoding : sourceSetConfig.inputEncoding.isPresent() ?
-                        sourceSetConfig.inputEncoding : extension.inputEncoding,
-
-                outputEncoding: sourceSetConfig.outputEncoding.isPresent() ?
-                        sourceSetConfig.outputEncoding : extension.outputEncoding,
-
-                verbose       : sourceSetConfig.verbose.isPresent() ?
-                        sourceSetConfig.verbose : extension.verbose,
-
-                quiet         : sourceSetConfig.quiet.isPresent() ?
-                        sourceSetConfig.quiet : extension.quiet,
-
-                failOnWarning : sourceSetConfig.failOnWarning.isPresent() ?
-                        sourceSetConfig.failOnWarning : extension.failOnWarning
-        ]
+        config
     }
 }
 

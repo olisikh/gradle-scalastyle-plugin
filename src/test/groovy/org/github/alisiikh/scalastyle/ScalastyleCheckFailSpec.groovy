@@ -8,7 +8,7 @@ class ScalastyleCheckFailSpec extends ScalastyleFunSpec {
         setup:
         prepareTest("simple", """
 scalastyle {
-    config = file("\$rootDir/scalastyle.xml")
+    config = file("\$rootDir/scalastyle_config.xml")
     verbose = false
     failOnWarning = true
 }

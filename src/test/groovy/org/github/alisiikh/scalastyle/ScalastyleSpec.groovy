@@ -29,7 +29,6 @@ plugins {
 ${scalastyleOverrides ?: """
 scalastyle {
     scalaVersion = "$scalaVersion"
-    config = file("\$rootDir/scalastyle.xml")
     verbose = false
 }
 """}
