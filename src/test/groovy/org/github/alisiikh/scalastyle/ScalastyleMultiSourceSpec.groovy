@@ -9,7 +9,7 @@ class ScalastyleMultiSourceSpec extends ScalastyleFunSpec {
 
     private String baseConfig = """
 sourceSets {
-    garbage {
+    intTest {
         scala {
             compileClasspath += main.output
             runtimeClasspath += main.output
@@ -18,8 +18,8 @@ sourceSets {
 }
 
 configurations {
-    garbageCompile.extendsFrom compile
-    garbageRuntime.extendsFrom compile
+    intTestCompile.extendsFrom compile
+    intTestRuntime.extendsFrom compile
 }
 
 scalastyle {
@@ -31,7 +31,7 @@ scalastyle {
 
     def "should succeed on scalastyleTestCheck"() {
         setup:
-        prepareTest("multi", baseConfig + """
+        prepareTest("single-module-multi-source", baseConfig + """
 scalastyle {
     sourceSets {
         test {
@@ -64,7 +64,7 @@ Found 0 warnings
 
     def "should succeed on scalastyleMainCheck"() {
         setup:
-        prepareTest("multi", baseConfig + """
+        prepareTest("single-module-multi-source", baseConfig + """
 scalastyle {
     sourceSets {
         main {
@@ -88,7 +88,7 @@ Found 0 warnings
 
     def "should fail on scalastyleMainCheck with custom configuration"() {
         setup:
-        prepareTest("multi", baseConfig + """
+        prepareTest("single-module-multi-source", baseConfig + """
 scalastyle {
     sourceSets {
         main {
@@ -112,13 +112,13 @@ Found 0 warnings
         result.output.contains """src/main/scala/Person.scala message=@deprecated should be used instead of @java.lang.Deprecated line=17 column=0"""
     }
 
-    def "should not have a task scalastyleGarbageCheck"() {
+    def "should not have a task scalastyleIntTestCheck"() {
         setup:
-        prepareTest("multi", baseConfig + """
+        prepareTest("single-module-multi-source", baseConfig + """
 scalastyle {
     sourceSets {
-        garbage {
-            // do not even create scalastyleGarbageCheck task for this source set
+        intTest {
+            // do not even create scalastyleIntTestCheck task for this source set
             skip = true
         }
     }
@@ -126,9 +126,9 @@ scalastyle {
 """)
 
         when:
-        def result = executeGradleAndFail('scalastyleGarbageCheck')
+        def result = executeGradleAndFail('scalastyleIntTestCheck')
 
         then:
-        result.output.contains "Task 'scalastyleGarbageCheck' not found in root project"
+        result.output.contains "Task 'scalastyleIntTestCheck' not found in root project"
     }
 }

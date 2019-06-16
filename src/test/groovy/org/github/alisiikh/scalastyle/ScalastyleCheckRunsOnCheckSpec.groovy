@@ -9,7 +9,7 @@ class ScalastyleCheckRunsOnCheckSpec extends ScalastyleFunSpec {
 
     def "should run scalastyleCheck when Gradle's check task is invoked"() {
         setup:
-        prepareTest("simple")
+        prepareTest("single-module")
 
         when:
         BuildResult result = executeGradle('check')

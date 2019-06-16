@@ -9,7 +9,7 @@ class ScalastyleCheckTaskRunSpec extends ScalastyleFunSpec {
 
     def "should run scalastyleCheck"() {
         setup:
-        prepareTest("simple")
+        prepareTest("single-module")
 
         when:
         BuildResult result = executeGradle('scalastyleCheck')

@@ -6,7 +6,11 @@ class ScalastyleCheckFailsOnNoConfigSpec extends ScalastyleFunSpec {
 
     def "should run scalastyleCheck and fail if no scalastyle.xml config provided"() {
         setup:
-        prepareTest("noscalastyle")
+        prepareTest("single-module", """
+scalastyle {
+  config = file("\$rootDir/scalastyle_unknown.xml")
+}
+""")
 
         when:
         BuildResult result = executeGradleAndFail('scalastyleCheck')

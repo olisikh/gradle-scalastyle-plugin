@@ -6,7 +6,7 @@ class ScalastyleCheckFailSpec extends ScalastyleFunSpec {
 
     def "should run scalastyleCheck and fail on warning"() {
         setup:
-        prepareTest("simple", """
+        prepareTest("single-module", """
 scalastyle {
     config = file("\$rootDir/scalastyle_config.xml")
     verbose = false
