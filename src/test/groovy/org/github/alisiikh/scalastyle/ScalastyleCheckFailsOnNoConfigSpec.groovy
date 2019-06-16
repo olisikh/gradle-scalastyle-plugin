@@ -12,6 +12,6 @@ class ScalastyleCheckFailsOnNoConfigSpec extends ScalastyleFunSpec {
         BuildResult result = executeGradleAndFail('scalastyleCheck')
 
         then:
-        result.output.contains "scalastyle.xml file does not exist"
+        result.output.contains "Scalastyle configuration file does not exist"
     }
 }

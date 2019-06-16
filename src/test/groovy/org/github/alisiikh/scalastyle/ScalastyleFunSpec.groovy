@@ -12,6 +12,7 @@ abstract class ScalastyleFunSpec extends ScalastyleSpec {
 
     GradleRunner createRunner(String task) {
         GradleRunner.create()
+                .withPluginClasspath()
                 .forwardOutput()
                 .withProjectDir(testProjectDir.root)
                 .withDebug(true)
