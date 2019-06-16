@@ -10,19 +10,37 @@ import spock.lang.Specification
 
 abstract class ScalastyleFunSpec extends Specification {
 
+    static class Projects {
+        static SINGLE_MODULE = 'single-module'
+        static SINGLE_MODULE_MULTI_SOURCE = 'single-module-multi-source'
+    }
+
     @Rule
     public final TemporaryFolder testProjectDir = new TemporaryFolder()
 
     @Shared
-    File testProjectBuildDir
+    private File testProjectBuildDir
 
-    def createBuildFolder(String projectDir) {
-        FileUtils.copyDirectory(new File(this.class.getResource("/$projectDir").file), testProjectDir.root)
-        testProjectBuildDir = new File(testProjectDir.root, "build")
+    abstract String getProjectName()
+
+    String getScalastyleConfig() {
+        ""
+    }
+
+    def setup() {
+        FileUtils.copyDirectory(new File(this.class.getResource("/$projectName").file), testProjectDir.root)
+        testProjectBuildDir = new File(testProjectDir.root, 'build')
+
+        generateBuildGradleFile(scalastyleConfig)
+    }
+
+    def cleanup() {
+        testProjectBuildDir.deleteDir()
     }
 
     def generateBuildGradleFile(String scalastyleConfig = "") {
-        testProjectDir.newFile("build.gradle").write("""
+        testProjectDir.newFile("build.gradle")
+                .write("""
 plugins {
     id 'com.github.alisiikh.scalastyle'
 }
@@ -39,9 +57,10 @@ ${scalastyleConfig}
 """)
     }
 
-    File prepareTest(String projectDir, String scalastyleOverrides = null) {
-        createBuildFolder(projectDir)
-        generateBuildGradleFile(scalastyleOverrides)
+    File getProjectDir() { testProjectDir.root }
+    File getBuildDir() { testProjectBuildDir }
+    File getReportFor(String name) {
+        new File(testProjectBuildDir, "/scalastyle/$name/scalastyle-check.xml")
     }
 
     GradleRunner createRunner(String task) {
@@ -49,19 +68,18 @@ ${scalastyleConfig}
                 .withPluginClasspath()
                 .forwardOutput()
                 .withProjectDir(testProjectDir.root)
-                .withDebug(true)
-                .withArguments('--stacktrace', '--info', task)
+                .withArguments(task)
     }
 
-    BuildResult executeGradle(String task) {
+    BuildResult runGradleAndSucceed(String task) {
         createRunner(task).build()
     }
 
-    BuildResult executeGradleAndFail(String task) {
+    BuildResult runGradleAndFail(String task) {
         createRunner(task).buildAndFail()
     }
 
-    BuildResult executeGradle(String task, String gradleVersion) {
+    BuildResult runGradleAndSucceed(String task, String gradleVersion) {
         createRunner(task)
                 .withGradleVersion(gradleVersion)
                 .build()
