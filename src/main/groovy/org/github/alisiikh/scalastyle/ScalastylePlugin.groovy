@@ -61,11 +61,9 @@ class ScalastylePlugin implements Plugin<Project> {
 
                 def skip = sourceSetConfig.skip.isPresent() ? sourceSetConfig.skip : extension.skip
                 if (!skip.get()) {
-                    def scalastyleTask = project.tasks.register("scalastyle${sourceSet.name.capitalize()}Check", ScalastyleCheckTask)
-
                     def scalastyleConfig = resolveScalastyleConfig(sourceSetConfig, sourceSet.name)
 
-                    scalastyleTask.configure {
+                    project.tasks.create("scalastyle${sourceSet.name.capitalize()}Check", ScalastyleCheckTask) {
                         group = 'verification'
                         description = "Runs scalastyle checks on ${sourceSet.name} source set."
 
@@ -79,7 +77,6 @@ class ScalastylePlugin implements Plugin<Project> {
                         outputEncoding = extension.outputEncoding
                         inputEncoding = extension.inputEncoding
                     }
-                    scalastyleTask
                 } else {
                     null
                 }
