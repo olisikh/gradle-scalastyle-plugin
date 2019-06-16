@@ -6,23 +6,28 @@ Gradle plugin for Scalastyle http://www.scalastyle.org/
 
 Originally forked from: https://github.com/ngbinh/gradle-scalastyle-plugin
 
-### Instructions
+### Install
 
 Please refer to the plugin page on how to install it: https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
 
-Configure the plugin:
+
+### Configuration
+If you have a config scalastyle_config.xml in the root of your project 
+you don't need to specify configuration for the plugin
+
+Plugin configuration (example contains default values):
 
 ```groovy
 scalastyle {
-  scalaVersion = '2.12' // default
-  scalastyleVersion = '1.0.0' // default
-  config = file("${projectDir}/scalastyle_config.xml") // path to scalastyle config xml file, default: false
-  skip = false  // skips scalastyle check if set to true, default: false
-  inputEncoding = 'UTF-8' // default
-  outputEncoding = 'UTF-8' // default
-  failOnWarning = false // default
-  verbose = false // default
-  quiet = false // default
+  scalaVersion = '2.12'
+  scalastyleVersion = '1.0.0'
+  config = file("${projectDir}/scalastyle_config.xml") // path to scalastyle config xml file
+  skip = false  // skips scalastyle check if set to true
+  inputEncoding = 'UTF-8'
+  outputEncoding = 'UTF-8'
+  failOnWarning = false
+  verbose = false
+  quiet = false
 }
 ```
 
