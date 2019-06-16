@@ -58,8 +58,6 @@ dependencies {
 }
 
 test {
-    systemProperty 'scala.lang.version', scalaLangVersion
-
     testLogging {
         showStandardStreams = true
     }

@@ -98,7 +98,6 @@ class ScalastylePlugin implements Plugin<Project> {
         def config = sourceSetConfig.config.isPresent() ? sourceSetConfig.config : extension.config
 
         def configFile = config.get()
-        project.logger.info(configFile)
         if (!configFile.exists() || configFile.isDirectory()) {
             throw new GradleException("Scalastyle configuration file does not exist at path $configFile")
         } else {

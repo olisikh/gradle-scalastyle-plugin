@@ -10,8 +10,6 @@ abstract class ScalastyleSpec extends Specification {
     @Rule
     public final TemporaryFolder testProjectDir = new TemporaryFolder()
 
-    String scalaVersion = System.properties['scala.lang.version']
-
     @Shared
     File testProjectBuildDir
 
@@ -28,7 +26,7 @@ plugins {
 
 ${scalastyleOverrides ?: """
 scalastyle {
-    scalaVersion = "$scalaVersion"
+    scalaVersion = '2.12'
     verbose = false
 }
 """}
@@ -38,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:${scalaVersion}.6'
+    compile 'org.scala-lang:scala-library:2.12.8'
 }
 
 ScalaCompileOptions.metaClass.useAnt = false
