@@ -22,22 +22,18 @@ package org.github.alisiikh.scalastyle
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.scala.ScalaPlugin
-import org.gradle.api.tasks.SourceTask
-import org.gradle.process.internal.ExecException
-
 
 class ScalastylePlugin implements Plugin<Project> {
+
+    static final SCALASTYLE_CHECK = 'scalastyleCheck'
+
     private Project project
-    private Scalastyle extension
+    private ScalastyleExtension extension
 
     void apply(Project project) {
         this.project = project
-        this.extension = new Scalastyle(project.container(ScalastyleSourceSet))
+        this.extension = project.extensions.create('scalastyle', ScalastyleExtension, project)
 
-        project.plugins.apply(ScalaPlugin)
-
-        project.extensions.add('scalastyle', extension)
         project.configurations.create('scalastyle')
                 .setVisible(false)
                 .setTransitive(true)
@@ -46,110 +42,69 @@ class ScalastylePlugin implements Plugin<Project> {
         project.afterEvaluate { p ->
             p.dependencies {
                 // scala is already included in scalastyle dependency transitively
-                scalastyle "org.scalastyle:scalastyle_${extension.scalaVersion}:${extension.scalastyleVersion}"
+                scalastyle "org.scalastyle:scalastyle_${extension.scalaVersion.get()}:${extension.scalastyleVersion.get()}"
             }
         }
 
-        setupScalaStyle()
+        createTasks()
     }
 
-    private def setupScalaStyle() {
-        def scalastyleCheckTask = project.task('scalastyleCheck') {
-            group = 'verification'
-            description = 'Runs scalastyle checks.'
+    private def createTasks() {
+        def scalastyleCheckTask = project.tasks.register(SCALASTYLE_CHECK)
 
-            project.afterEvaluate {
-                setupExtensionDefaults()
+        project.afterEvaluate {
+            def scalastyleTasks = project.sourceSets.findAll { sourceSet -> !sourceSet.scala.srcDirs.isEmpty() }
+                    .findResults { sourceSet ->
 
-                def sourceSets = project.sourceSets.findAll { !it.scala.srcDirs.isEmpty() }
-                        .collectEntries { [it.name, it.scala.srcDirs] }
+                def sourceSetConfig = extension.sourceSets.find { it.name == sourceSet.name } ?:
+                        extension.sourceSets.create(sourceSet.name)
 
-                def scalastyleTasks = sourceSets.findResults {
-                    def sourceSetName = it.key as String
-                    def srcDirs = it.value as List<File>
+                def skip = sourceSetConfig.skip.isPresent() ? sourceSetConfig.skip : extension.skip
+                if (!skip.get()) {
+                    def scalastyleTask = project.tasks.register("scalastyle${sourceSet.name.capitalize()}Check", ScalastyleCheckTask)
 
-                    createScalaStyleTask(sourceSetName, srcDirs)
+                    def scalastyleConfig = resolveScalastyleConfig(sourceSetConfig, sourceSet.name)
+
+                    scalastyleTask.configure {
+                        group = 'verification'
+                        description = "Runs scalastyle checks on ${sourceSet.name} source set."
+
+                        source = sourceSet.scala.srcDirs
+                        output = sourceSetConfig.output
+                        config = scalastyleConfig
+                        failOnWarning = sourceSetConfig.failOnWarning.isPresent() ?
+                                sourceSetConfig.failOnWarning : extension.failOnWarning
+                        verbose = extension.verbose
+                        quiet = extension.quiet
+                        outputEncoding = extension.outputEncoding
+                        inputEncoding = extension.inputEncoding
+                    }
+                    scalastyleTask
+                } else {
+                    null
                 }
+            }
 
+            scalastyleCheckTask.configure {
+                group = 'verification'
+                description = 'Runs scalastyle checks.'
                 dependsOn(scalastyleTasks)
             }
+            project.check.dependsOn(scalastyleCheckTask)
         }
-
-        project.check.dependsOn(scalastyleCheckTask)
     }
 
-    private def createScalaStyleTask(String sourceSetName, List<File> srcDirs) {
-        def overrides = extension.sourceSets.find { it.name == sourceSetName } ?:
-                new ScalastyleSourceSet(sourceSetName)
+    private def resolveScalastyleConfig(ScalastyleSourceSetConfig sourceSetConfig, String sourceSetName) {
+        def config = sourceSetConfig.config.isPresent() ? sourceSetConfig.config : extension.config
 
-        def skip = overrides.skip != null ? overrides.skip : extension.skip
-        if (!skip) {
-            project.task(type: SourceTask, "scalastyle${sourceSetName.capitalize()}Check") {
-                group = 'verification'
-                description = "Runs scalastyle checks on source set ${sourceSetName}."
-
-                def outputFile = overrides.output ?
-                        project.file(overrides.output) :
-                        project.file("${project.buildDir.absolutePath}/scalastyle/${sourceSetName}/scalastyle-check.xml")
-
-                source = srcDirs
-                outputs.files(outputFile)
-
-                def config = overrides.config ? overrides.config : extension.config
-                if (!config.exists() || config.isDirectory()) {
-                    throw new GradleException("Scalastyle configuration $config file does not exist")
-                }
-
-                logger.info("Using scalastyle configuration for ${sourceSetName} source set: ${config.absolutePath}")
-
-                def options = extractOptions(overrides)
-
-                doLast {
-                    try {
-                        project.javaexec {
-                            main = 'org.scalastyle.Main'
-                            args([
-                                    '-c', config.absolutePath,
-                                    '-v', options.verbose,
-                                    '-q', options.quiet,
-                                    '--xmlOutput', outputFile.absolutePath,
-                                    '--xmlEncoding', options.outputEncoding,
-                                    '--inputEncoding', options.inputEncoding,
-                                    '-w', options.failOnWarning
-                            ] + srcDirs.collect { it.absolutePath })
-
-                            classpath = project.configurations.scalastyle
-                        }
-                    } catch (ExecException e) {
-                        throw new GradleException("Scalastyle check failed for sourceSet $sourceSetName.")
-                    }
-                }
-            }
+        def configFile = config.get()
+        if (!configFile.exists() || configFile.isDirectory()) {
+            throw new GradleException("Scalastyle configuration file does not exist at path $configFile")
         } else {
-            project.logger.lifecycle("Skipping source set $sourceSetName")
-            null
+            project.logger.info("Using scalastyle configuration ${configFile} for ${sourceSetName} source set")
         }
-    }
 
-    private def setupExtensionDefaults() {
-        extension.with {
-            skip = skip == null ? false : skip
-            inputEncoding = inputEncoding == null ? "UTF-8" : inputEncoding
-            outputEncoding = outputEncoding == null ? "UTF-8" : outputEncoding
-            verbose = verbose == null ? false : verbose
-            quiet = quiet == null ? false : quiet
-            failOnWarning = failOnWarning == null ? false : failOnWarning
-        }
-    }
-
-    private def extractOptions(ScalastyleSourceSet overrides) {
-        [
-                inputEncoding : overrides.inputEncoding ?: extension.inputEncoding,
-                outputEncoding: overrides.outputEncoding ?: extension.outputEncoding,
-                verbose       : overrides.verbose != null ? overrides.verbose : extension.verbose,
-                quiet         : overrides.quiet != null ? overrides.quiet : extension.quiet,
-                failOnWarning : overrides.failOnWarning != null ? overrides.failOnWarning : extension.failOnWarning
-        ]
+        config
     }
 }
 

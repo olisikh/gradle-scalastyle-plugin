@@ -6,105 +6,59 @@ Gradle plugin for Scalastyle http://www.scalastyle.org/
 
 Originally forked from: https://github.com/ngbinh/gradle-scalastyle-plugin
 
-### Instructions
+### Install
 
-https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
+Please refer to the plugin page on how to install it: https://plugins.gradle.org/plugin/com.github.alisiikh.scalastyle
 
-Use:
 
-```groovy
-plugins {
-  id "com.github.alisiikh.scalastyle"
-}
-```
+### Configuration
+If you have a config scalastyle_config.xml in the root of your project 
+you don't need to specify configuration for the plugin
 
-Or via buildScript:
-```groovy
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-  dependencies {
-    classpath "com.github.alisiikh:gradle-scalastyle-plugin:3.0.0"
-  }
-}
-
-apply plugin: "com.github.alisiikh.scalastyle"
-```
-
-Configure the plugin
+Plugin configuration (example contains default values):
 
 ```groovy
 scalastyle {
-  scalaVersion = '2.12' // default
-  scalastyleVersion = '1.0.0' // default
-  config = file("${projectDir}/scalastyle.xml")
+  scalaVersion = '2.12'
+  scalastyleVersion = '1.0.0'
+  config = file("${projectDir}/scalastyle_config.xml") // path to scalastyle config xml file
+  skip = false  // skips scalastyle check if set to true
+  inputEncoding = 'UTF-8'
+  outputEncoding = 'UTF-8'
+  failOnWarning = false
+  verbose = false
+  quiet = false
 }
 ```
 
-Other optional properties are
+Properties that can be specified only per source set (when specified, they are used in favor of global ones):
 
 ```groovy
-  output = file("${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml") // default
-  inputEncoding = 'UTF-8' // default
-  outputEncoding = 'UTF-8' // default
-  failOnWarning = false // default
-  skip = false  // default
-  verbose = false // default
-  quiet = false // default
+  output = file("${buildDir}/scalastyle/${sourceSet.name}/scalastyle-check.xml")
+  config = file("${projectDir}scalastyle_config.xml")
+  skip = false
+  failOnWarning = false
 ```
 
-#### Full Buildscript Example
+Example configuration for a project with multiple source sets and different scalastyle checking rules:
+
 ```groovy
-  buildscript {
-    repositories {
-      jcenter()
-      maven { url "https://plugins.gradle.org/m2/" }
-    }
-
-    dependencies {
-      classpath 'com.github.alisiikh:gradle-scalastyle-plugin:3.0.0'
-    }
-  }
-
-  apply plugin: 'com.github.alisiikh.scalastyle'
-
   scalastyle {
-    config = file("$rootDir/scalastyle-config.xml")
-  }
-```
-
-#### Custom configuration per sourceSet
-```
-  buildscript {
-    repositories {
-      jcenter()
-      maven { url "https://plugins.gradle.org/m2/" }
-    }
-
-    dependencies {
-      classpath 'com.github.alisiikh:gradle-scalastyle-plugin:3.0.0'
-    }
-  }
-
-  apply plugin: 'com.github.alisiikh.scalastyle'
-
-  scalastyle {
-    config = file("$rootDir/scalastyle-config.xml")
-
+    failOnWarning = true
+    verbose = false
+    quiet = true
+  
+    // source sets must be defined in the project
     sourceSets {
-      test {
-        // specifically configure scalastyle for test sourceSet
-        config = file("$rootDir/scalastyle_test.xml")
-        failOnWarning = true
+      main {
+        output = file("${projectDir}/scalastyle-main-report.xml") // output the main report to a specific location
       }
-
-      intTest {
-        // override output report for intTest sourceSet
-        // but still use global scalastyle-config.xml for other source sets if any
-        output = file("$projectDir/scalastyle-intTest-check.xml")
+      test {
+        config = file("${projectDir}/scalastyle-test.xml") // use different config for test
+        failOnWarning = false // fail on warning when running scalastyle for main source set
+      }
+      perfTest {
+        skip = true // don't run scalastyle for perfTest source set at all
       }
     }
   }

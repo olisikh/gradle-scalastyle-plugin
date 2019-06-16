@@ -10,9 +10,6 @@ abstract class ScalastyleSpec extends Specification {
     @Rule
     public final TemporaryFolder testProjectDir = new TemporaryFolder()
 
-    String scalaVersion = System.properties['SCALA_VERSION']
-    String pluginVersion = System.properties['PLUGIN_VERSION']
-
     @Shared
     File testProjectBuildDir
 
@@ -23,24 +20,13 @@ abstract class ScalastyleSpec extends Specification {
 
     def generateBuildGradleFile(String scalastyleOverrides = null) {
         testProjectDir.newFile("build.gradle") << """
-buildscript {
-    repositories {
-        jcenter()
-        mavenLocal()
-    }
-
-    dependencies {
-        classpath 'com.github.alisiikh:gradle-scalastyle-plugin:${pluginVersion}'
-    }
+plugins {
+    id 'com.github.alisiikh.scalastyle'
 }
-apply plugin: 'scala'
-apply plugin: 'com.github.alisiikh.scalastyle'
-
 
 ${scalastyleOverrides ?: """
 scalastyle {
-    scalaVersion = "$scalaVersion"
-    config = file("\$rootDir/scalastyle.xml")
+    scalaVersion = '2.12'
     verbose = false
 }
 """}
@@ -50,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:${scalaVersion}.6'
+    compile 'org.scala-lang:scala-library:2.12.8'
 }
 
 ScalaCompileOptions.metaClass.useAnt = false

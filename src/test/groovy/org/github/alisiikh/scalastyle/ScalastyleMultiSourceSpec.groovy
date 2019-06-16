@@ -24,7 +24,7 @@ configurations {
 
 scalastyle {
     // global config, used in case not overriden specifically
-    config = file("\$rootDir/scalastyle.xml")
+    config = file("\$rootDir/scalastyle_config.xml")
     verbose = false
 }
 """

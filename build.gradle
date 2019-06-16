@@ -13,40 +13,30 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-buildscript {
-    repositories {
-        jcenter()
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-    dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.10.0"
-    }
-}
-
 plugins {
     id 'groovy'
+    id 'java-gradle-plugin'
     id 'maven-publish'
+    id 'com.gradle.plugin-publish' version "0.10.0"
+    id 'org.jetbrains.gradle.plugin.idea-ext' version "0.4.2"
 }
 
-version = '3.0.1'
+version = '3.1.0'
 group = 'com.github.alisiikh'
 
 ext {
-    scalaVersion = '2.12'
+    scalaLangVersion = '2.12'
 }
 
 wrapper {
-    gradleVersion = '4.7'
+    gradleVersion = '5.4.1'
 }
-
-apply plugin: 'com.gradle.plugin-publish'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 ext {
     projectGithub = 'https://github.com/alisiikh/gradle-scalastyle-plugin'
-
     pluginId = 'com.github.alisiikh.scalastyle'
     pluginDescription = 'Gradle plugin for scalastyle'
 }
@@ -68,13 +58,9 @@ dependencies {
 }
 
 test {
-    dependsOn 'publishToMavenLocal'
-
     testLogging {
         showStandardStreams = true
     }
-    systemProperty 'SCALA_VERSION', scalaVersion
-    systemProperty 'PLUGIN_VERSION', version
 }
 
 publishing {
@@ -94,11 +80,33 @@ pluginBundle {
     vcsUrl = projectGithub
     description = pluginDescription
     tags = ['scalastyle', 'scala', 'code analysis', 'checkstyle']
+}
 
+gradlePlugin {
     plugins {
-        scalastylePlugin {
+        scalastyle {
             id = pluginId
+            implementationClass = 'org.github.alisiikh.scalastyle.ScalastylePlugin'
             displayName = pluginDescription
         }
+    }
+}
+
+
+task fixIdeaPluginClasspath {
+    doFirst {
+        configure(tasks.pluginUnderTestMetadata) {
+            def ideaClassesPath = project.buildDir.toPath().resolveSibling("out").resolve("production")
+            def newClasspath = pluginClasspath as List
+            newClasspath.add(0, ideaClassesPath)
+            pluginClasspath.setFrom(newClasspath)
+        }
+    }
+}
+pluginUnderTestMetadata.mustRunAfter(fixIdeaPluginClasspath)
+
+idea.project.settings {
+    taskTriggers {
+        beforeBuild(fixIdeaPluginClasspath, pluginUnderTestMetadata)
     }
 }
