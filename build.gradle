@@ -49,17 +49,39 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy()
 
-    testImplementation gradleTestKit()
-    testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
+    testCompile gradleTestKit()
+    testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude module: 'groovy-all'
     }
-    testImplementation 'commons-io:commons-io:2.5'
+    testCompile 'commons-io:commons-io:2.5'
 }
 
-test {
+sourceSets {
+    functionalTest {
+        java.srcDir file('src/functionalTest/java')
+        resources.srcDir file('src/functionalTest/resources')
+        compileClasspath += sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+task functionalTest(type: Test) {
+    description = 'Runs the functional tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.functionalTest.output.classesDirs
+    classpath = sourceSets.functionalTest.runtimeClasspath
+
     testLogging {
         showStandardStreams = true
     }
+    mustRunAfter test
+}
+
+check.dependsOn functionalTest
+
+gradlePlugin {
+    testSourceSets sourceSets.functionalTest
 }
 
 publishing {
@@ -85,7 +107,7 @@ gradlePlugin {
     plugins {
         scalastyle {
             id = pluginId
-            implementationClass = 'org.github.alisiikh.scalastyle.ScalastylePlugin'
+            implementationClass = 'com.github.alisiikh.scalastyle.ScalastylePlugin'
             displayName = pluginDescription
         }
     }

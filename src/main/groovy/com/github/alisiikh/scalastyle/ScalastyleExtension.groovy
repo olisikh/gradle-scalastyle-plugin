@@ -17,7 +17,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.github.alisiikh.scalastyle
+package com.github.alisiikh.scalastyle
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
@@ -49,12 +49,12 @@ abstract class CommonScalastyleConfig {
     }
 }
 
-class ScalastyleSourceSetConfig extends CommonScalastyleConfig {
+class SourceSetScalastyleConfig extends CommonScalastyleConfig {
     final String name
 
     final Property<File> output
 
-    ScalastyleSourceSetConfig(Project project, String name) {
+    SourceSetScalastyleConfig(Project project, String name) {
         super(project)
 
         this.name = name
@@ -79,7 +79,7 @@ class ScalastyleExtension extends CommonScalastyleConfig {
     final Property<Boolean> verbose
     final Property<Boolean> quiet
 
-    final NamedDomainObjectContainer<ScalastyleSourceSetConfig> sourceSets
+    final NamedDomainObjectContainer<SourceSetScalastyleConfig> sourceSets
 
     ScalastyleExtension(Project project) {
         super(project)
@@ -109,8 +109,8 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         config.convention(new File(project.projectDir, "scalastyle_config.xml"))
         failOnWarning.convention(false)
 
-        sourceSets = project.container(ScalastyleSourceSetConfig, { name ->
-            new ScalastyleSourceSetConfig(project, name)
+        sourceSets = project.container(SourceSetScalastyleConfig, { name ->
+            new SourceSetScalastyleConfig(project, name)
         })
     }
 

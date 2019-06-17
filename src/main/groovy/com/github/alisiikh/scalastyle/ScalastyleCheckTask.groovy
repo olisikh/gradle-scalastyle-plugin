@@ -17,7 +17,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.github.alisiikh.scalastyle
+package com.github.alisiikh.scalastyle
 
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
@@ -27,10 +27,14 @@ import org.gradle.process.internal.ExecException
 @CacheableTask
 class ScalastyleCheckTask extends SourceTask {
 
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     @InputFile
     Property<File> config = project.objects.property(File)
+
+    @PathSensitive(PathSensitivity.ABSOLUTE)
     @OutputFile
     Property<File> output = project.objects.property(File)
+
     @Input
     Property<String> inputEncoding = project.objects.property(String)
     @Input

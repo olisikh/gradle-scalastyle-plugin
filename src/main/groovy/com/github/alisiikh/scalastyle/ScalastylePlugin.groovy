@@ -17,11 +17,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.github.alisiikh.scalastyle
+package com.github.alisiikh.scalastyle
 
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.SourceSet
 
 class ScalastylePlugin implements Plugin<Project> {
 
@@ -53,32 +54,29 @@ class ScalastylePlugin implements Plugin<Project> {
         def scalastyleCheckTask = project.tasks.register(SCALASTYLE_CHECK)
 
         project.afterEvaluate {
-            def scalastyleTasks = project.sourceSets.findAll { sourceSet -> !sourceSet.scala.srcDirs.isEmpty() }
-                    .findResults { sourceSet ->
+            def scalastyleTasks = project.sourceSets.findResults { SourceSet sourceSet ->
+                if (sourceSet.scala.srcDirs.isEmpty()) {
+                    return null
+                }
 
-                def sourceSetConfig = extension.sourceSets.find { it.name == sourceSet.name } ?:
-                        extension.sourceSets.create(sourceSet.name)
+                def sourceSetConfig = getOrCreateSourceSetConfig(sourceSet)
+                def shouldSkipTask = sourceSetConfig.skip.isPresent() ? sourceSetConfig.skip : extension.skip
 
-                def skip = sourceSetConfig.skip.isPresent() ? sourceSetConfig.skip : extension.skip
-                if (!skip.get()) {
-                    def scalastyleConfig = resolveScalastyleConfig(sourceSetConfig, sourceSet.name)
+                project.tasks.create("scalastyle${sourceSet.name.capitalize()}Check", ScalastyleCheckTask) {
+                    group = 'verification'
+                    description = "Runs scalastyle checks on ${sourceSet.name} source set."
 
-                    project.tasks.create("scalastyle${sourceSet.name.capitalize()}Check", ScalastyleCheckTask) {
-                        group = 'verification'
-                        description = "Runs scalastyle checks on ${sourceSet.name} source set."
+                    onlyIf { !shouldSkipTask.get() }
 
-                        source = sourceSet.scala.srcDirs
-                        output = sourceSetConfig.output
-                        config = scalastyleConfig
-                        failOnWarning = sourceSetConfig.failOnWarning.isPresent() ?
-                                sourceSetConfig.failOnWarning : extension.failOnWarning
-                        verbose = extension.verbose
-                        quiet = extension.quiet
-                        outputEncoding = extension.outputEncoding
-                        inputEncoding = extension.inputEncoding
-                    }
-                } else {
-                    null
+                    source = sourceSet.scala.srcDirs
+                    output = sourceSetConfig.output
+                    config = resolveScalastyleConfig(sourceSetConfig, sourceSet.name)
+                    failOnWarning = sourceSetConfig.failOnWarning.isPresent() ?
+                            sourceSetConfig.failOnWarning : extension.failOnWarning
+                    verbose = extension.verbose
+                    quiet = extension.quiet
+                    outputEncoding = extension.outputEncoding
+                    inputEncoding = extension.inputEncoding
                 }
             }
 
@@ -91,7 +89,11 @@ class ScalastylePlugin implements Plugin<Project> {
         }
     }
 
-    private def resolveScalastyleConfig(ScalastyleSourceSetConfig sourceSetConfig, String sourceSetName) {
+    private def getOrCreateSourceSetConfig(SourceSet sourceSet) {
+        extension.sourceSets.findByName(sourceSet.name) ?: extension.sourceSets.create(sourceSet.name)
+    }
+
+    private def resolveScalastyleConfig(SourceSetScalastyleConfig sourceSetConfig, String sourceSetName) {
         def config = sourceSetConfig.config.isPresent() ? sourceSetConfig.config : extension.config
 
         def configFile = config.get()
