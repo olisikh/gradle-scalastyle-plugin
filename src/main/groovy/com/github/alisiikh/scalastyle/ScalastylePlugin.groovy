@@ -106,4 +106,3 @@ class ScalastylePlugin implements Plugin<Project> {
         config
     }
 }
-
