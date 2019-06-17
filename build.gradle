@@ -59,6 +59,7 @@ dependencies {
 sourceSets {
     functionalTest {
         java.srcDir file('src/functionalTest/java')
+        groovy.srcDir file('src/functionalTest/groovy')
         resources.srcDir file('src/functionalTest/resources')
         compileClasspath += sourceSets.main.output + configurations.testRuntime
         runtimeClasspath += output + compileClasspath
