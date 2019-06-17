@@ -4,7 +4,7 @@ import org.gradle.testkit.runner.BuildResult
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-class ScalastyleCheckOutputPathCanBeOverriddenSpec extends ScalastyleFunSpec {
+class ScalastyleCheckOutputPathOverriddenSpec extends ScalastyleFunSpec {
 
     @Override
     String getProjectName() { Projects.SINGLE_MODULE }

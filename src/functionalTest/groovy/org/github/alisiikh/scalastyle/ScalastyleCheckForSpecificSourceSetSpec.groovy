@@ -4,7 +4,7 @@ import org.gradle.testkit.runner.BuildResult
 
 import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 
-class ScalastyleCheckCoubleBeRunForSpecificSourceSetSpec extends ScalastyleFunSpec {
+class ScalastyleCheckForSpecificSourceSetSpec extends ScalastyleFunSpec {
 
     @Override
     String getProjectName() { Projects.SINGLE_MODULE }
