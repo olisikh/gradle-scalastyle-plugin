@@ -69,14 +69,15 @@ class ScalastylePlugin implements Plugin<Project> {
                     onlyIf { !shouldSkipTask.get() }
 
                     source = sourceSet.scala.srcDirs
-                    output = sourceSetConfig.output
-                    config = resolveScalastyleConfig(sourceSetConfig, sourceSet.name)
-                    failOnWarning = sourceSetConfig.failOnWarning.isPresent() ?
-                            sourceSetConfig.failOnWarning : extension.failOnWarning
-                    verbose = extension.verbose
-                    quiet = extension.quiet
-                    outputEncoding = extension.outputEncoding
-                    inputEncoding = extension.inputEncoding
+
+                    output.set(sourceSetConfig.output)
+                    config.set(resolveScalastyleConfig(sourceSetConfig, sourceSet.name))
+                    failOnWarning.set(sourceSetConfig.failOnWarning.isPresent() ?
+                            sourceSetConfig.failOnWarning : extension.failOnWarning)
+                    verbose.set(extension.verbose)
+                    quiet.set(extension.quiet)
+                    outputEncoding.set(extension.outputEncoding)
+                    inputEncoding.set(extension.inputEncoding)
                 }
             }
 

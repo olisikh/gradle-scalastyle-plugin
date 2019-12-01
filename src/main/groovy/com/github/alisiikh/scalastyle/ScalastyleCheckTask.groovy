@@ -29,22 +29,21 @@ class ScalastyleCheckTask extends SourceTask {
 
     @PathSensitive(PathSensitivity.ABSOLUTE)
     @InputFile
-    Property<File> config = project.objects.property(File)
+    final Property<File> config = project.objects.property(File)
 
-    @PathSensitive(PathSensitivity.ABSOLUTE)
     @OutputFile
-    Property<File> output = project.objects.property(File)
+    final Property<File> output = project.objects.property(File)
 
     @Input
-    Property<String> inputEncoding = project.objects.property(String)
+    final Property<String> inputEncoding = project.objects.property(String)
     @Input
-    Property<String> outputEncoding = project.objects.property(String)
+    final Property<String> outputEncoding = project.objects.property(String)
     @Input
-    Property<Boolean> failOnWarning = project.objects.property(Boolean)
+    final Property<Boolean> failOnWarning = project.objects.property(Boolean)
     @Input
-    Property<Boolean> verbose = project.objects.property(Boolean)
+    final Property<Boolean> verbose = project.objects.property(Boolean)
     @Input
-    Property<Boolean> quiet = project.objects.property(Boolean)
+    final Property<Boolean> quiet = project.objects.property(Boolean)
 
     @TaskAction
     def run() {
