@@ -13,6 +13,7 @@ abstract class ScalastyleFunSpec extends Specification {
     static class Projects {
         static SINGLE_MODULE = 'single-module'
         static SINGLE_MODULE_MULTI_SOURCE = 'single-module-multi-source'
+        static TRAILING_COMMA = 'trailing-comma'
     }
 
     @Rule
