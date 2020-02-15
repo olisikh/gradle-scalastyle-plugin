@@ -42,8 +42,14 @@ class ScalastylePlugin implements Plugin<Project> {
 
         project.afterEvaluate { p ->
             p.dependencies {
+                /**
+                 * Beautiful Scala fork of ScalaStyle: https://scalastyle.beautiful-scala.com
+                 *
+                 * See: https://github.com/scalastyle/scalastyle/issues/327#issuecomment-570951273
+                 * Release notes: https://github.com/beautiful-scala/scalastyle/releases/tag/v1.1.0
+                 */
                 // scala is already included in scalastyle dependency transitively
-                scalastyle "org.scalastyle:scalastyle_${extension.scalaVersion.get()}:${extension.scalastyleVersion.get()}"
+                scalastyle "com.beautiful-scala:scalastyle_${extension.scalaVersion.get()}:${extension.scalastyleVersion.get()}"
             }
         }
 
