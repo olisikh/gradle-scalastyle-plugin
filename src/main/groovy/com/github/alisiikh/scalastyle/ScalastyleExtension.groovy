@@ -70,7 +70,7 @@ class SourceSetScalastyleConfig extends CommonScalastyleConfig {
 
 class ScalastyleExtension extends CommonScalastyleConfig {
     static final SCALA_VERSION = '2.12'
-    static final SCALASTYLE_VERSION = '1.0.0'
+    static final SCALASTYLE_VERSION = '1.2.0'
 
     final Property<String> scalaVersion
     final Property<String> scalastyleVersion
