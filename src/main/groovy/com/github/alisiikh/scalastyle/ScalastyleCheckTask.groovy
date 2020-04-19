@@ -21,6 +21,7 @@ package com.github.alisiikh.scalastyle
 
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.ExecException
 
@@ -30,6 +31,10 @@ class ScalastyleCheckTask extends SourceTask {
     @PathSensitive(PathSensitivity.ABSOLUTE)
     @InputFile
     final Property<File> config = project.objects.property(File)
+
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    @InputFiles
+    final SetProperty<File> sourceDirs = project.objects.setProperty(File)
 
     @OutputFile
     final Property<File> output = project.objects.property(File)
@@ -48,22 +53,32 @@ class ScalastyleCheckTask extends SourceTask {
     @TaskAction
     def run() {
         try {
+            def arguments = [
+                    '-c', config.get().absolutePath,
+                    '-v', verbose.get().toString(),
+                    '-q', quiet.get().toString(),
+                    '--xmlOutput', output.get().absolutePath,
+                    '--xmlEncoding', outputEncoding.get(),
+                    '--inputEncoding', inputEncoding.get(),
+                    '-w', failOnWarning.get().toString()
+            ]
+
+            def srcDirs = sourceDirs.get().collect { it.absolutePath }.toList()
+
+            logger.debug("Arguments to be used by Scalastyle: ${arguments.join(" ")}")
+            logger.debug("""Source folders to be inspected by Scalastyle:
+                           |${srcDirs.join(System.lineSeparator())}""".stripMargin())
+
             project.javaexec {
                 main = 'org.scalastyle.Main'
-                args([
-                        '-c', config.get(),
-                        '-v', verbose.get(),
-                        '-q', quiet.get(),
-                        '--xmlOutput', output.get(),
-                        '--xmlEncoding', outputEncoding.get(),
-                        '--inputEncoding', inputEncoding.get(),
-                        '-w', failOnWarning.get()
-                ] + source.collect { it.absolutePath })
+                args(arguments + srcDirs)
 
                 classpath = project.configurations.scalastyle
             }
         } catch (ExecException e) {
-            throw new GradleException("Scalastyle check failed.")
+            throw new GradleException("Scalastyle check failed.", e)
+        } catch (Throwable e) {
+            throw new GradleException("Failed to execute Scalastyle inspection", e)
         }
     }
 }

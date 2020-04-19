@@ -76,6 +76,7 @@ class ScalastylePlugin implements Plugin<Project> {
 
                     source = sourceSet.scala.srcDirs
 
+                    sourceDirs.set(sourceSet.scala.srcDirs)
                     output.set(sourceSetConfig.output)
                     config.set(resolveScalastyleConfig(sourceSetConfig, sourceSet.name))
                     failOnWarning.set(sourceSetConfig.failOnWarning.isPresent() ?
