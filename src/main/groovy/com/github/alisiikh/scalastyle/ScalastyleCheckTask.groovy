@@ -28,11 +28,11 @@ import org.gradle.process.internal.ExecException
 @CacheableTask
 class ScalastyleCheckTask extends SourceTask {
 
-    @PathSensitive(PathSensitivity.ABSOLUTE)
+    @PathSensitive(PathSensitivity.RELATIVE)
     @InputFile
     final Property<File> config = project.objects.property(File)
 
-    @PathSensitive(PathSensitivity.ABSOLUTE)
+    @PathSensitive(PathSensitivity.RELATIVE)
     @InputFiles
     final SetProperty<File> sourceDirs = project.objects.setProperty(File)
 
