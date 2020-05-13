@@ -23,10 +23,19 @@ import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
-import org.gradle.process.internal.ExecException
+import org.gradle.workers.WorkQueue
+import org.gradle.workers.WorkerExecutor
+
+import javax.inject.Inject
 
 @CacheableTask
 class ScalastyleCheckTask extends SourceTask {
+    private final WorkerExecutor workerExecutor;
+
+    @Inject
+    ScalastyleCheckTask(WorkerExecutor workerExecutor) {
+        this.workerExecutor = workerExecutor;
+    }
 
     @PathSensitive(PathSensitivity.RELATIVE)
     @InputFile
@@ -54,13 +63,13 @@ class ScalastyleCheckTask extends SourceTask {
     def run() {
         try {
             def arguments = [
-                    '-c', config.get().absolutePath,
-                    '-v', verbose.get().toString(),
-                    '-q', quiet.get().toString(),
-                    '--xmlOutput', output.get().absolutePath,
-                    '--xmlEncoding', outputEncoding.get(),
-                    '--inputEncoding', inputEncoding.get(),
-                    '-w', failOnWarning.get().toString()
+              '-c', config.get().absolutePath,
+              '-v', verbose.get().toString(),
+              '-q', quiet.get().toString(),
+              '--xmlOutput', output.get().absolutePath,
+              '--xmlEncoding', outputEncoding.get(),
+              '--inputEncoding', inputEncoding.get(),
+              '-w', failOnWarning.get().toString()
             ]
 
             def srcDirs = sourceDirs.get().collect { it.absolutePath }.toList()
@@ -69,15 +78,21 @@ class ScalastyleCheckTask extends SourceTask {
             logger.debug("""Source folders to be inspected by Scalastyle:
                            |${srcDirs.join(System.lineSeparator())}""".stripMargin())
 
-            project.javaexec {
-                main = 'org.scalastyle.Main'
-                args(arguments + srcDirs)
-
-                classpath = project.configurations.scalastyle
+            WorkQueue workQueue = workerExecutor.classLoaderIsolation() { workerSpec ->
+                workerSpec.getClasspath().from(getProject().getConfigurations().getByName('scalastyle'))
             }
-        } catch (ExecException e) {
-            throw new GradleException("Scalastyle check failed.", e)
-        } catch (Throwable e) {
+            workQueue.submit(ScalastyleCheckAction.class) { parameters ->
+                parameters.getArgs().set([
+                  '-c', config.get().absolutePath,
+                  '-v', verbose.get().toString(),
+                  '-q', quiet.get().toString(),
+                  '--xmlOutput', output.get().absolutePath,
+                  '--xmlEncoding', outputEncoding.get(),
+                  '--inputEncoding', inputEncoding.get(),
+                  '-w', failOnWarning.get().toString()
+                ] + srcDirs)
+            }
+        } catch(Throwable e) {
             throw new GradleException("Failed to execute Scalastyle inspection", e)
         }
     }
