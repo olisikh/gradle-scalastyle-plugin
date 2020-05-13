@@ -23,18 +23,18 @@ abstract class ScalastyleCheckAction implements WorkAction<ScalastyleCheckParame
   @Override
   void execute() {
     try {
-      Object[] args = [getParameters().getArgs().get() as String[]] as Object[]
+      String s = 'UTF8'
+      String[] args = getParameters().getArgs().get() as String[]
 
       Class<?> codecClass = Thread.currentThread().getContextClassLoader().loadClass('scala.io.Codec$')
       Object codecInstance = codecClass.getField('MODULE$').get(null)
-      Field utf8 = codecClass.getDeclaredField('UTF8')
-      utf8.setAccessible(true)
-      Object codec = utf8.get(codecInstance)
+      Method string2codec = codecClass.getMethod('string2codec', s.getClass())
+      Object codec = string2codec.invoke(codecInstance, s)
       Class<?> mainClass = Thread.currentThread().getContextClassLoader().loadClass('org.scalastyle.Main$')
       Object mainInstance = mainClass.getField('MODULE$').get(null)
-      Method parseArgs = mainClass.getDeclaredMethod('parseArgs', java.lang.String[])
-      Object mainConfig = parseArgs.invoke(mainInstance, args)
-      Method execute = mainClass.getDeclaredMethods().find { it.getName() == 'execute' }
+      Method parseArgs = mainClass.getDeclaredMethod('parseArgs', args.getClass())
+      Object mainConfig = parseArgs.invoke(mainInstance, [args] as Object[])
+      Method execute = mainClass.getDeclaredMethod('execute', mainConfig.getClass(), codec.getClass())
       execute.setAccessible(true)
       assert execute.invoke(mainInstance, mainConfig, codec) == false
     } catch(AssertionError e) {
