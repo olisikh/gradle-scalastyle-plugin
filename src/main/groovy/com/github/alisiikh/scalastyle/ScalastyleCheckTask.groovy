@@ -20,6 +20,7 @@
 package com.github.alisiikh.scalastyle
 
 import org.gradle.api.GradleException
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
@@ -59,6 +60,9 @@ class ScalastyleCheckTask extends SourceTask {
     @Input
     final Property<Boolean> quiet = project.objects.property(Boolean)
 
+    @Internal
+    final ListProperty<String> jvmArgs = project.objects.listProperty(String)
+
     @TaskAction
     def run() {
         try {
@@ -74,12 +78,18 @@ class ScalastyleCheckTask extends SourceTask {
 
             def srcDirs = sourceDirs.get().collect { it.absolutePath }.toList()
 
+            def args = jvmArgs.get()
+
             logger.debug("Arguments to be used by Scalastyle: ${arguments.join(" ")}")
             logger.debug("""Source folders to be inspected by Scalastyle:
                            |${srcDirs.join(System.lineSeparator())}""".stripMargin())
+            logger.debug("Arguments to be used by JVM: ${args.join(" ")}")
 
-            WorkQueue workQueue = workerExecutor.classLoaderIsolation() { workerSpec ->
+            WorkQueue workQueue = workerExecutor.processIsolation() { workerSpec ->
                 workerSpec.getClasspath().from(getProject().getConfigurations().getByName('scalastyle'))
+                workerSpec.forkOptions { options ->
+                    options.jvmArgs(args)
+                }
             }
             workQueue.submit(ScalastyleCheckAction.class) { parameters ->
                 parameters.getArgs().set([

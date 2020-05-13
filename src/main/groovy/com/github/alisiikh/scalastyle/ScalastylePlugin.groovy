@@ -85,6 +85,7 @@ class ScalastylePlugin implements Plugin<Project> {
                     quiet.set(extension.quiet)
                     outputEncoding.set(extension.outputEncoding)
                     inputEncoding.set(extension.inputEncoding)
+                    jvmArgs.set(extension.jvmArgs)
                 }
             }
 

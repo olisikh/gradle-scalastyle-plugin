@@ -23,6 +23,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.scala.ScalaPlugin
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 
 abstract class CommonScalastyleConfig {
@@ -78,6 +79,7 @@ class ScalastyleExtension extends CommonScalastyleConfig {
     final Property<String> outputEncoding
     final Property<Boolean> verbose
     final Property<Boolean> quiet
+    final ListProperty<String> jvmArgs
 
     final NamedDomainObjectContainer<SourceSetScalastyleConfig> sourceSets
 
@@ -104,6 +106,9 @@ class ScalastyleExtension extends CommonScalastyleConfig {
 
         quiet = project.objects.property(Boolean)
         quiet.set(false)
+
+        jvmArgs = project.objects.listProperty(String)
+        jvmArgs.set([])
 
         skip.convention(false)
         config.convention(new File(project.projectDir, "scalastyle_config.xml"))
