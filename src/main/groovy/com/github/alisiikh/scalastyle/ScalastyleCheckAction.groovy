@@ -22,14 +22,16 @@ abstract class ScalastyleCheckAction implements WorkAction<ScalastyleCheckParame
   @Override
   void execute() {
     try {
-      String s = 'UTF8'
       String[] args = getParameters().getArgs().get() as String[]
 
-      Class<?> codecClass = Thread.currentThread().getContextClassLoader().loadClass('scala.io.Codec$')
+      ClassLoader classLoader = Thread.currentThread().getContextClassLoader()
+
+      Class<?> codecClass = classLoader.loadClass('scala.io.Codec$')
       Object codecInstance = codecClass.getField('MODULE$').get(null)
-      Method string2codec = codecClass.getMethod('string2codec', s.getClass())
-      Object codec = string2codec.invoke(codecInstance, s)
-      Class<?> mainClass = Thread.currentThread().getContextClassLoader().loadClass('org.scalastyle.Main$')
+      Method defaultCharsetCodec = codecClass.getMethod('defaultCharsetCodec')
+      Object codec = defaultCharsetCodec.invoke(codecInstance)
+
+      Class<?> mainClass = classLoader.loadClass('org.scalastyle.Main$')
       Object mainInstance = mainClass.getField('MODULE$').get(null)
       Method parseArgs = mainClass.getDeclaredMethod('parseArgs', args.getClass())
       Object mainConfig = parseArgs.invoke(mainInstance, [args] as Object[])
