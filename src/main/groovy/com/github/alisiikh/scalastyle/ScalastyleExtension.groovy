@@ -19,12 +19,16 @@
  */
 package com.github.alisiikh.scalastyle
 
+import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.scala.ScalaPlugin
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.process.JavaForkOptions
+import org.gradle.process.internal.JavaForkOptionsFactory
+
+import javax.inject.Inject
 
 abstract class CommonScalastyleConfig {
     final Property<Boolean> skip
@@ -79,7 +83,7 @@ class ScalastyleExtension extends CommonScalastyleConfig {
     final Property<String> outputEncoding
     final Property<Boolean> verbose
     final Property<Boolean> quiet
-    final ListProperty<String> jvmArgs
+    final Property<JavaForkOptions> options
 
     final NamedDomainObjectContainer<SourceSetScalastyleConfig> sourceSets
 
@@ -107,8 +111,8 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         quiet = project.objects.property(Boolean)
         quiet.set(false)
 
-        jvmArgs = project.objects.listProperty(String)
-        jvmArgs.set([])
+        options = project.objects.property(JavaForkOptions)
+        options.set(getJavaForkOptionsFactory().newJavaForkOptions())
 
         skip.convention(false)
         config.convention(new File(project.projectDir, "scalastyle_config.xml"))
@@ -117,6 +121,11 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         sourceSets = project.container(SourceSetScalastyleConfig, { name ->
             new SourceSetScalastyleConfig(project, name)
         })
+    }
+
+    @Inject
+    protected JavaForkOptionsFactory getJavaForkOptionsFactory() {
+        throw new UnsupportedOperationException();
     }
 
     void setScalaVersion(String scalaVersion) {
@@ -141,6 +150,10 @@ class ScalastyleExtension extends CommonScalastyleConfig {
 
     void setQuiet(boolean quiet) {
         this.quiet.set(quiet)
+    }
+
+    def options(final Action<? super JavaForkOptions> a) {
+        a.execute(options.get())
     }
 
     def sourceSets(final Closure c) {

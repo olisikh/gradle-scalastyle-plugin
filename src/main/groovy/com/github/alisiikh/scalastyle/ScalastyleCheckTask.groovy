@@ -20,10 +20,10 @@
 package com.github.alisiikh.scalastyle
 
 import org.gradle.api.GradleException
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
+import org.gradle.process.JavaForkOptions
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 
@@ -61,7 +61,7 @@ class ScalastyleCheckTask extends SourceTask {
     final Property<Boolean> quiet = project.objects.property(Boolean)
 
     @Internal
-    final ListProperty<String> jvmArgs = project.objects.listProperty(String)
+    final Property<JavaForkOptions> options = project.objects.property(JavaForkOptions)
 
     @TaskAction
     def run() {
@@ -78,18 +78,13 @@ class ScalastyleCheckTask extends SourceTask {
 
             def srcDirs = sourceDirs.get().collect { it.absolutePath }.toList()
 
-            def args = jvmArgs.get()
-
             logger.debug("Arguments to be used by Scalastyle: ${arguments.join(" ")}")
             logger.debug("""Source folders to be inspected by Scalastyle:
                            |${srcDirs.join(System.lineSeparator())}""".stripMargin())
-            logger.debug("Arguments to be used by JVM: ${args.join(" ")}")
 
             WorkQueue workQueue = workerExecutor.processIsolation() { workerSpec ->
                 workerSpec.getClasspath().from(getProject().getConfigurations().getByName('scalastyle'))
-                workerSpec.forkOptions { options ->
-                    options.jvmArgs(args)
-                }
+                options.get().copyTo(workerSpec.getForkOptions())
             }
             workQueue.submit(ScalastyleCheckAction.class) { parameters ->
                 parameters.getArgs().set([

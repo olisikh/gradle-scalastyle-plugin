@@ -16,7 +16,6 @@ package com.github.alisiikh.scalastyle
 import org.gradle.api.GradleException
 import org.gradle.workers.WorkAction
 
-import java.lang.reflect.Field
 import java.lang.reflect.Method
 
 abstract class ScalastyleCheckAction implements WorkAction<ScalastyleCheckParameters> {
