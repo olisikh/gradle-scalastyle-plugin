@@ -87,6 +87,7 @@ class ScalastyleCheckTask extends SourceTask {
                 options.get().copyTo(workerSpec.getForkOptions())
             }
             workQueue.submit(ScalastyleCheckAction.class) { parameters ->
+                parameters.getReport().set(output.get())
                 parameters.getArgs().set([
                   '-c', config.get().absolutePath,
                   '-v', verbose.get().toString(),

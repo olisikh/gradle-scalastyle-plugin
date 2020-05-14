@@ -14,8 +14,10 @@
 package com.github.alisiikh.scalastyle
 
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.workers.WorkParameters
 
 interface ScalastyleCheckParameters extends WorkParameters {
+  Property<File> getReport()
   ListProperty<String> getArgs()
 }

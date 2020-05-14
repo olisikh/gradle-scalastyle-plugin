@@ -39,7 +39,7 @@ abstract class ScalastyleCheckAction implements WorkAction<ScalastyleCheckParame
       execute.setAccessible(true)
       assert execute.invoke(mainInstance, mainConfig, codec) == false
     } catch(AssertionError e) {
-      throw new GradleException("Scalastyle check failed.", e)
+      throw new GradleException("Scalastyle check failed. See the report at: ${getParameters().getReport().get()}", e)
     } catch(Exception e) {
       throw new RuntimeException(e)
     }
