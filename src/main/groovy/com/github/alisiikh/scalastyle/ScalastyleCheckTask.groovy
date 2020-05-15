@@ -61,7 +61,7 @@ class ScalastyleCheckTask extends SourceTask {
     final Property<Boolean> quiet = project.objects.property(Boolean)
 
     @Internal
-    final Property<JavaForkOptions> options = project.objects.property(JavaForkOptions)
+    final Property<JavaForkOptions> forkOptions = project.objects.property(JavaForkOptions)
 
     @TaskAction
     def run() {
@@ -84,7 +84,7 @@ class ScalastyleCheckTask extends SourceTask {
 
             WorkQueue workQueue = workerExecutor.processIsolation() { workerSpec ->
                 workerSpec.getClasspath().from(getProject().getConfigurations().getByName('scalastyle'))
-                options.get().copyTo(workerSpec.getForkOptions())
+                this.forkOptions.get().copyTo(workerSpec.getForkOptions())
             }
             workQueue.submit(ScalastyleCheckAction.class) { parameters ->
                 parameters.getReport().set(output.get())

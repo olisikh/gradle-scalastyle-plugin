@@ -83,7 +83,7 @@ class ScalastyleExtension extends CommonScalastyleConfig {
     final Property<String> outputEncoding
     final Property<Boolean> verbose
     final Property<Boolean> quiet
-    final Property<JavaForkOptions> options
+    final Property<JavaForkOptions> forkOptions
 
     final NamedDomainObjectContainer<SourceSetScalastyleConfig> sourceSets
 
@@ -111,8 +111,8 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         quiet = project.objects.property(Boolean)
         quiet.set(false)
 
-        options = project.objects.property(JavaForkOptions)
-        options.set(getJavaForkOptionsFactory().newJavaForkOptions())
+        forkOptions = project.objects.property(JavaForkOptions)
+        forkOptions.set(getJavaForkOptionsFactory().newJavaForkOptions())
 
         skip.convention(false)
         config.convention(new File(project.projectDir, "scalastyle_config.xml"))
@@ -152,8 +152,8 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         this.quiet.set(quiet)
     }
 
-    def options(final Action<? super JavaForkOptions> a) {
-        a.execute(options.get())
+    def forkOptions(final Action<? super JavaForkOptions> a) {
+        a.execute(forkOptions.get())
     }
 
     def sourceSets(final Closure c) {

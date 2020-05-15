@@ -28,7 +28,7 @@ scalastyle {
   failOnWarning = false
   verbose = false
   quiet = false
-  options {} // JavaForkOptions that determine fork options of the daemon worker(s)
+  forkOptions {} // JavaForkOptions that determine fork options of the daemon worker(s)
 }
 ```
 
@@ -65,11 +65,11 @@ Example configuration for a project with multiple source sets and different scal
   }
 ```
 
-Example configuration of options parameter:
+Example configuration of `forkOptions` parameter:
 
 ```groovy
   scalastyle {
-    options {
+    forkOptions {
       maxHeapSize = '64m'
     }
   }
