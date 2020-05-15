@@ -12,7 +12,7 @@ Please refer to the plugin page on how to install it: https://plugins.gradle.org
 
 
 ### Configuration
-If you have a config scalastyle_config.xml in the root of your project 
+If you have a config scalastyle_config.xml in the root of your project
 you don't need to specify configuration for the plugin
 
 Plugin configuration (example contains default values):
@@ -28,6 +28,7 @@ scalastyle {
   failOnWarning = false
   verbose = false
   quiet = false
+  forkOptions {} // JavaForkOptions that determine fork options of the daemon worker(s)
 }
 ```
 
@@ -47,7 +48,7 @@ Example configuration for a project with multiple source sets and different scal
     failOnWarning = true
     verbose = false
     quiet = true
-  
+
     // source sets must be defined in the project
     sourceSets {
       main {
@@ -60,6 +61,16 @@ Example configuration for a project with multiple source sets and different scal
       perfTest {
         skip = true // don't run scalastyle for perfTest source set at all
       }
+    }
+  }
+```
+
+Example configuration of `forkOptions` parameter:
+
+```groovy
+  scalastyle {
+    forkOptions {
+      maxHeapSize = '64m'
     }
   }
 ```

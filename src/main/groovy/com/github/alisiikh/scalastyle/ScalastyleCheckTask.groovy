@@ -23,16 +23,26 @@ import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
-import org.gradle.process.internal.ExecException
+import org.gradle.process.JavaForkOptions
+import org.gradle.workers.WorkQueue
+import org.gradle.workers.WorkerExecutor
+
+import javax.inject.Inject
 
 @CacheableTask
 class ScalastyleCheckTask extends SourceTask {
+    private final WorkerExecutor workerExecutor
 
-    @PathSensitive(PathSensitivity.ABSOLUTE)
+    @Inject
+    ScalastyleCheckTask(WorkerExecutor workerExecutor) {
+        this.workerExecutor = workerExecutor
+    }
+
+    @PathSensitive(PathSensitivity.RELATIVE)
     @InputFile
     final Property<File> config = project.objects.property(File)
 
-    @PathSensitive(PathSensitivity.ABSOLUTE)
+    @PathSensitive(PathSensitivity.RELATIVE)
     @InputFiles
     final SetProperty<File> sourceDirs = project.objects.setProperty(File)
 
@@ -50,17 +60,20 @@ class ScalastyleCheckTask extends SourceTask {
     @Input
     final Property<Boolean> quiet = project.objects.property(Boolean)
 
+    @Internal
+    final Property<JavaForkOptions> forkOptions = project.objects.property(JavaForkOptions)
+
     @TaskAction
     def run() {
         try {
             def arguments = [
-                    '-c', config.get().absolutePath,
-                    '-v', verbose.get().toString(),
-                    '-q', quiet.get().toString(),
-                    '--xmlOutput', output.get().absolutePath,
-                    '--xmlEncoding', outputEncoding.get(),
-                    '--inputEncoding', inputEncoding.get(),
-                    '-w', failOnWarning.get().toString()
+              '-c', config.get().absolutePath,
+              '-v', verbose.get().toString(),
+              '-q', quiet.get().toString(),
+              '--xmlOutput', output.get().absolutePath,
+              '--xmlEncoding', outputEncoding.get(),
+              '--inputEncoding', inputEncoding.get(),
+              '-w', failOnWarning.get().toString()
             ]
 
             def srcDirs = sourceDirs.get().collect { it.absolutePath }.toList()
@@ -69,15 +82,23 @@ class ScalastyleCheckTask extends SourceTask {
             logger.debug("""Source folders to be inspected by Scalastyle:
                            |${srcDirs.join(System.lineSeparator())}""".stripMargin())
 
-            project.javaexec {
-                main = 'org.scalastyle.Main'
-                args(arguments + srcDirs)
-
-                classpath = project.configurations.scalastyle
+            WorkQueue workQueue = workerExecutor.processIsolation() { workerSpec ->
+                workerSpec.getClasspath().from(getProject().getConfigurations().getByName('scalastyle'))
+                this.forkOptions.get().copyTo(workerSpec.getForkOptions())
             }
-        } catch (ExecException e) {
-            throw new GradleException("Scalastyle check failed.", e)
-        } catch (Throwable e) {
+            workQueue.submit(ScalastyleCheckAction.class) { parameters ->
+                parameters.getReport().set(output.get())
+                parameters.getArgs().set([
+                  '-c', config.get().absolutePath,
+                  '-v', verbose.get().toString(),
+                  '-q', quiet.get().toString(),
+                  '--xmlOutput', output.get().absolutePath,
+                  '--xmlEncoding', outputEncoding.get(),
+                  '--inputEncoding', inputEncoding.get(),
+                  '-w', failOnWarning.get().toString()
+                ] + srcDirs)
+            }
+        } catch(Throwable e) {
             throw new GradleException("Failed to execute Scalastyle inspection", e)
         }
     }

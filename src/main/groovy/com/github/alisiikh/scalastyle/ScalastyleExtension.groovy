@@ -19,11 +19,16 @@
  */
 package com.github.alisiikh.scalastyle
 
+import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.scala.ScalaPlugin
 import org.gradle.api.provider.Property
+import org.gradle.process.JavaForkOptions
+import org.gradle.process.internal.JavaForkOptionsFactory
+
+import javax.inject.Inject
 
 abstract class CommonScalastyleConfig {
     final Property<Boolean> skip
@@ -78,6 +83,7 @@ class ScalastyleExtension extends CommonScalastyleConfig {
     final Property<String> outputEncoding
     final Property<Boolean> verbose
     final Property<Boolean> quiet
+    final Property<JavaForkOptions> forkOptions
 
     final NamedDomainObjectContainer<SourceSetScalastyleConfig> sourceSets
 
@@ -105,6 +111,9 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         quiet = project.objects.property(Boolean)
         quiet.set(false)
 
+        forkOptions = project.objects.property(JavaForkOptions)
+        forkOptions.set(getForkOptionsFactory().newJavaForkOptions())
+
         skip.convention(false)
         config.convention(new File(project.projectDir, "scalastyle_config.xml"))
         failOnWarning.convention(false)
@@ -112,6 +121,13 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         sourceSets = project.container(SourceSetScalastyleConfig, { name ->
             new SourceSetScalastyleConfig(project, name)
         })
+    }
+
+    // implementation of getForkOptionsFactory method follows the example set by org.gradle.api.tasks.testing.Test task
+    // https://github.com/gradle/gradle/blob/v6.0.1/subprojects/testing-jvm/src/main/java/org/gradle/api/tasks/testing/Test.java#L179
+    @Inject
+    protected JavaForkOptionsFactory getForkOptionsFactory() {
+        throw new UnsupportedOperationException()
     }
 
     void setScalaVersion(String scalaVersion) {
@@ -136,6 +152,10 @@ class ScalastyleExtension extends CommonScalastyleConfig {
 
     void setQuiet(boolean quiet) {
         this.quiet.set(quiet)
+    }
+
+    def forkOptions(final Action<? super JavaForkOptions> a) {
+        a.execute(forkOptions.get())
     }
 
     def sourceSets(final Closure c) {
