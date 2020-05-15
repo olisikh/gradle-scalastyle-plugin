@@ -112,7 +112,7 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         quiet.set(false)
 
         forkOptions = project.objects.property(JavaForkOptions)
-        forkOptions.set(getJavaForkOptionsFactory().newJavaForkOptions())
+        forkOptions.set(getForkOptionsFactory().newJavaForkOptions())
 
         skip.convention(false)
         config.convention(new File(project.projectDir, "scalastyle_config.xml"))
@@ -123,9 +123,11 @@ class ScalastyleExtension extends CommonScalastyleConfig {
         })
     }
 
+    // implementation of getForkOptionsFactory method follows the example set by org.gradle.api.tasks.testing.Test task
+    // https://github.com/gradle/gradle/blob/v6.0.1/subprojects/testing-jvm/src/main/java/org/gradle/api/tasks/testing/Test.java#L179
     @Inject
-    protected JavaForkOptionsFactory getJavaForkOptionsFactory() {
-        throw new UnsupportedOperationException();
+    protected JavaForkOptionsFactory getForkOptionsFactory() {
+        throw new UnsupportedOperationException()
     }
 
     void setScalaVersion(String scalaVersion) {

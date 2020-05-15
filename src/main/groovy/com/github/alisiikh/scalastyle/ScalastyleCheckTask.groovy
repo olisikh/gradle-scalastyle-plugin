@@ -31,11 +31,11 @@ import javax.inject.Inject
 
 @CacheableTask
 class ScalastyleCheckTask extends SourceTask {
-    private final WorkerExecutor workerExecutor;
+    private final WorkerExecutor workerExecutor
 
     @Inject
     ScalastyleCheckTask(WorkerExecutor workerExecutor) {
-        this.workerExecutor = workerExecutor;
+        this.workerExecutor = workerExecutor
     }
 
     @PathSensitive(PathSensitivity.RELATIVE)
