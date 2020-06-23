@@ -20,6 +20,7 @@
 package com.github.alisiikh.scalastyle
 
 import org.gradle.api.GradleException
+import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
@@ -63,6 +64,9 @@ class ScalastyleCheckTask extends SourceTask {
     @Internal
     final Property<JavaForkOptions> forkOptions = project.objects.property(JavaForkOptions)
 
+    @Classpath
+    FileCollection classpath = project.configurations.getByName('scalastyle')
+
     @TaskAction
     def run() {
         try {
@@ -83,7 +87,7 @@ class ScalastyleCheckTask extends SourceTask {
                            |${srcDirs.join(System.lineSeparator())}""".stripMargin())
 
             WorkQueue workQueue = workerExecutor.processIsolation() { workerSpec ->
-                workerSpec.getClasspath().from(getProject().getConfigurations().getByName('scalastyle'))
+                workerSpec.getClasspath().from(this.classpath)
                 this.forkOptions.get().copyTo(workerSpec.getForkOptions())
             }
             workQueue.submit(ScalastyleCheckAction.class) { parameters ->
