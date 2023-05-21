@@ -29,7 +29,7 @@ ext {
 }
 
 wrapper {
-    gradleVersion = '6.0.1'
+    gradleVersion = '6.9.4'
 }
 
 sourceCompatibility = 1.8
