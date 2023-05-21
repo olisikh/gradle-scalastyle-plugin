@@ -20,7 +20,7 @@ Plugin configuration (example contains default values):
 ```groovy
 scalastyle {
   scalaVersion = '2.12'
-  scalastyleVersion = '1.2.0' // version of com.beautiful-scala:scalastyle
+  scalastyleVersion = '1.5.1'
   config = file("${projectDir}/scalastyle_config.xml") // path to scalastyle config xml file
   skip = false  // skips scalastyle check if set to true
   inputEncoding = 'UTF-8'
