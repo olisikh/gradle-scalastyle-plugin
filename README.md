@@ -1,3 +1,9 @@
+### !!! ATTENTION !!!
+
+This plugin is not actively maintained, I'm not an active Gradle and Scalastyle user anymore.
+
+If you wish to keep maintaining this plugin, please feel free to fork it and publish it under your name.
+
 # Scalastyle Gradle Plugin
 
 ![Build](https://travis-ci.org/alisiikh/gradle-scalastyle-plugin.svg?branch=master)
