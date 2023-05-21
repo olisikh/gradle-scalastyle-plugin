@@ -2,7 +2,7 @@
 
 ![Build](https://travis-ci.org/alisiikh/gradle-scalastyle-plugin.svg?branch=master)
 
-Gradle plugin for Scalastyle http://www.scalastyle.org/
+Gradle plugin for Scalastyle (beautiful-scala fork) https://scalastyle.beautiful-scala.com/
 
 Originally forked from: https://github.com/ngbinh/gradle-scalastyle-plugin
 
