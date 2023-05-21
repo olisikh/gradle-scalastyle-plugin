@@ -2,7 +2,7 @@
 
 ![Build](https://travis-ci.org/alisiikh/gradle-scalastyle-plugin.svg?branch=master)
 
-Gradle plugin for Scalastyle http://www.scalastyle.org/
+Gradle plugin for Scalastyle (beautiful-scala fork) https://scalastyle.beautiful-scala.com/
 
 Originally forked from: https://github.com/ngbinh/gradle-scalastyle-plugin
 
@@ -20,7 +20,7 @@ Plugin configuration (example contains default values):
 ```groovy
 scalastyle {
   scalaVersion = '2.12'
-  scalastyleVersion = '1.0.0'
+  scalastyleVersion = '1.2.0' // version of com.beautiful-scala:scalastyle
   config = file("${projectDir}/scalastyle_config.xml") // path to scalastyle config xml file
   skip = false  // skips scalastyle check if set to true
   inputEncoding = 'UTF-8'
